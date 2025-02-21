@@ -1,4 +1,3 @@
-import React from 'react'
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { Button, Card } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
