@@ -30,10 +30,16 @@ function App() {
   },[auth.user]);
 
   return (
+
     <ThemeProvider theme={darkTheme}>
-      <CssBaseline></CssBaseline>
+        <CssBaseline></CssBaseline>
       <Routers/>
+
+
     </ThemeProvider>
+
+
+
   );
 }
 

@@ -29,7 +29,7 @@ const Navbar = () => {
     <Box className='px-5 sticky top-0 z-50 py-[.8rem] bg-[#e91e63] lg:px-20 flex justify-between'>
 
             <div className='lg:mr10 cursor-pointer flex items-center space-x-4'>
-                <li onClick={()=>navigate("/")} className='logo font-semibold text-gray-300 text-2xl cursor-pointer'>
+                <li onClick={()=>navigate("/")} className='logo font-semibold text-gray-300 text-xl cursor-pointer'>
                     foodiee
                 </li>
             </div>
