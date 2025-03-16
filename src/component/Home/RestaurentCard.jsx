@@ -6,9 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToFavouriter } from '../State/Authentication/Action';
 import { isPresentInFavourites } from '../config/logic';
-// import { isPresentInFavourites } from '../config/logic';
 
-const   RestaurentCard = ({item}) => {
+const RestaurentCard = ({item}) => {
 
     console.log("item", item);
     const navigate=useNavigate();
@@ -23,15 +22,13 @@ const   RestaurentCard = ({item}) => {
         dispatch(addToFavouriter({jwt,restaurentId:item.id}))
     }
 
-    const handleNavigateToRestaurent = () => {
-        console.log("Item status", item.status);  // Check if status is being checked correctly
-        if (item.status) {
-            navigate(`/restaurent/${item.address}/${item.name}/${item.id}`);
-        } else {
-            console.log("Restaurant is closed");
-        }
-    }
-        
+    const handleNavigateToRestaurent=()=>{
+        if(item.open)
+          {
+           navigate(`/restaurent/${item.address.city}/${item.name}/${item.id}`)
+          }
+      }
+    
 
   return (
     <div>
@@ -39,8 +36,8 @@ const   RestaurentCard = ({item}) => {
 
             <div className={`${true?'cursor-pointer':'cursor-not-allowed'} relative`}>
                 <img className='w-full h-[10rem] rounded-t-md object-cover' 
-                src={item.images[0]} alt=""/>
-                <Chip size='small' className='absolute top-2 left-2' color={item.status?'success':'error'} label={item.status?'open':'closed'}
+                src={item.images[0]} alt="" />
+                <Chip size='small' className='absolute top-2 left-2' color={item.open?'success':'error'} label={item.open?'open':'closed'}
                 />
 
             </div>

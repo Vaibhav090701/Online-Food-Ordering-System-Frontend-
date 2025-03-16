@@ -1,12 +1,14 @@
 import { CREATE_MENU_ITEM_FAILURE, CREATE_MENU_ITEM_REQUEST, CREATE_MENU_ITEM_SUCCESS, DELETE_MENU_ITEM_FAILURE, DELETE_MENU_ITEM_REQUEST, DELETE_MENU_ITEM_SUCCESS, GET_MENU_ITEMS_BY_RESTAURENT_ID_FAILURE, GET_MENU_ITEMS_BY_RESTAURENT_ID_REQUEST, GET_MENU_ITEMS_BY_RESTAURENT_ID_SUCCESS, GET_RESTAURENT_MENU_FAILURE, GET_RESTAURENT_MENU_REQUEST, GET_RESTAURENT_MENU_SUCCESS, SEARCH_MENU_ITEM_FAILURE, SEARCH_MENU_ITEM_REQUEST, SEARCH_MENU_ITEM_SUCCESS, UPDATE_MENU_ITEMS_AVAILABILITY_FAILURE, UPDATE_MENU_ITEMS_AVAILABILITY_REQUEST, UPDATE_MENU_ITEMS_AVAILABILITY_SUCCESS } from "./ActionType"
 import { api } from "../../config/api";
 
-export const createMenuItem=({menu,jwt})=>{
+export const createMenuItem=({reqData,jwt})=>{
     return async(dispatch)=>{
         dispatch({type:CREATE_MENU_ITEM_REQUEST})
+        console.log("Request data being sent to backend:", reqData);
+
 
         try {
-            const {data}=await api.post(`api/admin/food`,menu,{
+            const {data}=await api.post(`/api/admin/menu`, reqData,{
                 headers:{
                     Authorization:`Bearer ${jwt}`,
                 },
@@ -22,14 +24,14 @@ export const createMenuItem=({menu,jwt})=>{
     }
 }
 
-export const getMenuItemByRestaurentId=(reqData)=>{
+export const getMenuItemByRestaurentId=({restaurentId,jwt})=>{
     return async(dispatch)=>{
         dispatch({type:GET_MENU_ITEMS_BY_RESTAURENT_ID_REQUEST})
 
         try {
-            const {data}=await api.get(`/api/food/restaurent/${reqData.restaurentId}?isVegetarian=${reqData.isVegetarian}&isNonVegetarian=${reqData.isNonVegetarian}&isSeasonal=${reqData.isSeasonal}&foodCategory=${reqData.foodCategory}`,{
+            const {data}=await api.get(`/api/restaurants/menu/${restaurentId}`,{
                 headers:{
-                    Authorization:`Bearer ${reqData.jwt}`,
+                    Authorization:`Bearer ${jwt}`,
                 },
             });
             console.log("menu item found by restaurent id", data);
@@ -71,7 +73,7 @@ export const updateMenuItemsAvailability=({foodId,jwt})=>{
         dispatch({type:UPDATE_MENU_ITEMS_AVAILABILITY_REQUEST})
 
         try {
-            const{data}=await api.put(`api/admin/food/${foodId}`,{},{
+            const{data}=await api.put(`api/admin/restaurant/menu/${foodId}/availability`,{},{
                 headers:{
                     Authorization:`Bearer ${jwt}`,
                 },
@@ -112,7 +114,7 @@ export const getRestaurentMenu=({id,jwt})=>{
         dispatch({type:GET_RESTAURENT_MENU_REQUEST})
 
         try {
-            const {data}=await api.get(`api/admin/food/${id}/menu`,{
+            const {data}=await api.get(`/api/admin/restaurant/${id}/menu`,{
                 headers:{
                     Authorization:`Bearer ${jwt}`
                 },

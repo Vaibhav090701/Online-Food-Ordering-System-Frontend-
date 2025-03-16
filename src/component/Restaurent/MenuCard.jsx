@@ -9,30 +9,21 @@ import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../State/Cart/Action';
 
 
-const MenuCard = ({item}) => {
+const MenuCard = ({item, restaurantId}) => {
 
   const [selectedIngredients,setSelectedIngredients]=useState([ ]);
 
   const dispatch=useDispatch();
-  const demo=[
-    {
-      category:"Nuts & Seeds",
-      ingredient:["Cashews"]
-    },
-    {
-      category:"Protein",
-      ingredient:["Whey protein","Isolated protein"]
-    },
-  ]
 
   const handleAddItemToCart=(e)=>{
     e.preventDefault();
     const reqData={
       token:localStorage.getItem("jwt"),
       cartItem:{
-        foodId:item.id,
+        menuItemId:item.id,
         quantity:1,
-        ingredients:[selectedIngredients]
+        ingredients:selectedIngredients.length>0 ? selectedIngredients : null, // // Send null if no ingredients selected
+        restaurantId:restaurantId
       }
     };
     console.log("reqData",reqData);
@@ -47,7 +38,7 @@ const MenuCard = ({item}) => {
       setSelectedIngredients(selectedIngredients.filter((item)=>item!==itemName));
     }
     else{
-      setSelectedIngredients(...selectedIngredients,itemName)
+      setSelectedIngredients([...selectedIngredients,itemName])
     }
   }
 
@@ -80,12 +71,12 @@ const MenuCard = ({item}) => {
 
       <form onSubmit={handleAddItemToCart}>
         <div className='flex flex-wrap gap-5'>
-          {Object.keys(categrizeIngredient(item.ingredients)).map((category)=> 
+          {item.ingredients.map((ingredient)=> 
           <div>
-            <p>{category}</p>
+            <p>Choose Ingredients</p>
             <FormGroup>
 
-              {categrizeIngredient(item.ingredients)[category].map((item)=>
+              {item.ingredients.map((item)=>
                 <FormControlLabel key={item.id} control={<Checkbox onChange={()=>handleCheckBoxChange(item.name)} />} label={item.name} />
               )}
 

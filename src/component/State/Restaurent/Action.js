@@ -5,7 +5,7 @@ export const getAllRestaurents=(token)=>{
     return async (dispatch)=>{
     dispatch({type:GET_ALL_RESTAURENTS_REQUEST})
     try {
-        const {data}=await api.get("/api/restaurents",{
+        const {data}=await api.get("/api/restaurants",{
             headers:{
                 Authorization:`Bearer ${token}`
             }
@@ -20,11 +20,11 @@ export const getAllRestaurents=(token)=>{
 };
 }
 
-export const getRestaurentById=({jwt,restaurentId})=>{
+export const getRestaurentById=({restaurentId,jwt})=>{
     return async(dispatch)=>{
         dispatch({type:GET_RESTAURENT_BY_ID_REQUEST})
         try {
-            const {data}=await api.get(`/api/restaurents/${restaurentId}`,{
+            const {data}=await api.get(`/api/restaurants/${restaurentId}`,{
                 headers:{
                     Authorization:`Bearer ${jwt}`,
                 }
@@ -46,7 +46,7 @@ export const getRestaurentByUserId=(token)=>{
         dispatch({type:GET_RESTAURENT_BY_USER_ID_REQUEST})
 
         try {
-            const {data}=await api.get(`/api/admin/restaurents/user`,{
+            const {data}=await api.get(`/api/admin/restaurant/user`,{
                 headers:{
                     Authorization:`Bearer ${token}`,
                 },
@@ -69,7 +69,7 @@ export const createRestaurent=(reqData)=>{
     return async(dispatch)=>{
         dispatch({type:CREATE_RESTAURENT_REQUEST})
         try {
-            const {data}=await api.post(`/api/admin/restaurents`, reqData.data,{
+            const {data}=await api.post(`/api/admin/restaurant`, reqData.data,{
                 headers:{
                     Authorization:`Bearer ${reqData.token}`,
                 }
@@ -133,7 +133,7 @@ export const updateRestaurentStatus=({restaurentId,jwt})=>{
     return async(dispatch)=>{
         dispatch({type:UPDATE_RESTAURENT_STATUS_REQUEST})
         try {
-            const res=await api.put(`/api/admin/restaurents/${restaurentId}/status`,{},{
+            const res=await api.put(`/api/admin/restaurant/${restaurentId}/status`,{},{
                 headers:{
                     Authorization:`Bearer ${jwt}`,
                 }

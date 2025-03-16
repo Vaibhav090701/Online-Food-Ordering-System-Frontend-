@@ -47,7 +47,7 @@ const Orders = () => {
         </FormControl>
       </Card>
 
-      <OrderTable/>
+      <OrderTable filterValue={filterValue}/>
     </div>
   );
 };

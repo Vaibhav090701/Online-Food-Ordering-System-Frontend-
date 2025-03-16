@@ -5,6 +5,7 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { loginUser } from '../State/Authentication/Action'
+import NotificationSnackbar from '../../util/NotificationSnackBar'
 
 const LoginForm = () => {
 
@@ -25,6 +26,7 @@ const LoginForm = () => {
 
   return (
     <div>
+
         <Typography variant='h5' className='text-center'>
             Login
         </Typography>

@@ -1,4 +1,4 @@
-import { api, API_URL } from "../../config/api";
+import { api} from "../../config/api";
 import { ADD_ITEM_TO_CART_FAILURE, ADD_ITEM_TO_CART_REQUEST, ADD_ITEM_TO_CART_SUCCESS, CLEARE_CART_FAILURE, CLEARE_CART_REQUEST, CLEARE_CART_SUCCESS, FIND_CART_FAILURE, FIND_CART_REQUEST, FIND_CART_SUCCESS, GET_ALL_CART_ITEMS_FAILURE, GET_ALL_CART_ITEMS_REQUEST, GET_ALL_CART_ITEMS_SUCCESS, REMOVE_CART_ITEM_FAILURE, REMOVE_CART_ITEM_REQUEST, REMOVE_CART_ITEM_SUCCESS, UPDATE_CART_ITEM_FAILURE, UPDATE_CART_ITEM_REQUEST, UPDATE_CART_ITEM_SUCCESS } from "./ActionType";
 
 export const addItemToCart=(reqData)=>{
@@ -6,7 +6,7 @@ export const addItemToCart=(reqData)=>{
         dispatch({type:ADD_ITEM_TO_CART_REQUEST})
 
         try {
-            const {data}=await api.put(`/api/cart/add`,reqData.cartItem,{
+            const {data}=await api.post(`/api/cart/add`,reqData.cartItem,{
                 headers:{
                     Authorization:`Bearer ${reqData.token}`
                 },
@@ -61,19 +61,24 @@ export const getAllCartItems=(reqData)=>{
     }
 }
 
-export const updateCartItem=(reqData)=>{
+export const updateCartItem=({id,quantity,jwt})=>{
     return async(dispatch)=>{
         dispatch({type:UPDATE_CART_ITEM_REQUEST})
 
         try {
-            const {data}=await api.put(`/api/cart-item/update`,reqData.data,{
+            const {data}=await api.put(`/api/cart/update/${id}`,null,{
                 headers:{
-                    Authorization:`Bearer ${reqData.jwt}`
+                    Authorization:`Bearer ${jwt}`
+                },
+                params:{
+                    quantity:quantity,
                 },
             });
 
             console.log("update cart", data);
             dispatch({type:UPDATE_CART_ITEM_SUCCESS, payload:data})
+
+            dispatch(findCart(jwt));
             
         } catch (error) {
             dispatch({type:UPDATE_CART_ITEM_FAILURE, payload:error})
@@ -87,7 +92,7 @@ export const removeCartItem=({cartItemId,jwt})=>{
         dispatch({type:REMOVE_CART_ITEM_REQUEST})
 
         try {
-            const {data}=await api.delete(`/api/cart-item/${cartItemId}/remove`,{
+            const {data}=await api.delete(`/api/cart/remove/${cartItemId}`,{
                 headers:{
                     Authorization:`Bearer ${jwt}`
                 },

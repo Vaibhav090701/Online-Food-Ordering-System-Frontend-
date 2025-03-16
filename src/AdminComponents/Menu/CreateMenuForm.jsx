@@ -2,19 +2,18 @@ import { AddPhotoAlternate } from '@mui/icons-material';
 import { Box, Button, Chip, CircularProgress, FormControl, Grid, IconButton, InputLabel, MenuItem, OutlinedInput, Select, TextField } from '@mui/material';
 import { useFormik } from 'formik'
 import CloseIcon from '@mui/icons-material/Close';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { uploadImageToCloudinary } from '../util/UploadToCloudinary';
 import { useDispatch, useSelector } from 'react-redux';
+import { getIngredientsOfRestaurent } from '../../component/State/Ingredients/Action';
+import { createMenuItem } from '../../component/State/Menu/Action';
 
 export const initialValues={
   name:"",
   description:"",
   price:"",
-  category:"",
-  restaurentId:"",
-  vegetarian:true,
-  seasonal:false,
-  ingredients:[],
+  isVegetarian:true,
+  ingredientIds:[],
   images:[],
 }
 
@@ -35,6 +34,10 @@ const ITEM_PADDING_TOP = 8;
       const { restaurent, ingredients } = useSelector(store => store);
       const restaurentId= restaurent.userRestaurent.id;
       const jwt=localStorage.getItem("jwt");
+
+      useEffect(()=>{
+        dispatch(getIngredientsOfRestaurent(jwt));
+      },[jwt])
     
   const [uploadImage, setUploadImage]=useState(false);
 
@@ -45,14 +48,12 @@ const ITEM_PADDING_TOP = 8;
         name:values.name,
         description:values.description,
         price:values.price,
-        category:values.category,
-        ingredients:values.ingredients,
-        vegetarian:values.vegetarian,
-        seasonal:values.seasonal
-      }
-
-
-      console.log("form data",values);
+        isVegetarian:values.isVegetarian,
+        ingredientIds:values.ingredientIds,
+        images:values.images
+      } 
+      console.log("form data",data);
+     dispatch(createMenuItem({reqData:data,jwt:jwt}))
     }
   });
 
@@ -73,7 +74,6 @@ const ITEM_PADDING_TOP = 8;
     formik.setFieldValue("images", updateImages)
 
   }
-  console.log("Price", formik.values.price);
   
   return (
     <div>
@@ -158,96 +158,61 @@ p-3 border rounded-md border-gray-600'>
           />
         </Grid>
 
+        <Grid xs={12}>
+  <FormControl fullWidth variant="outlined">
+    <InputLabel id="isVegetarian-label">Type</InputLabel>
+    <Select
+      labelId="isVegetarian-label"
+      name="isVegetarian"
+      value={formik.values.isVegetarian}
+      onChange={formik.handleChange}
+      label="Type"
+    >
+      <MenuItem value={true}>Vegetarian</MenuItem>
+      <MenuItem value={false}>Non-Vegetarian</MenuItem>
+    </Select>
+  </FormControl>
+</Grid>
+
+
         <Grid xs={12} lg={6}>
 
 
-        <FormControl fullWidth>
-  <InputLabel id="demo-simple-select-label">Category</InputLabel>
-  <Select
-    labelId="demo-simple-select-label"
-    id="demo-simple-select"
-    value={formik.values.category}
-    label="Category"
-    onChange={formik.handleChange}
-    name="category"
-  >{
-    restaurent.categories.map((row)=>(
-      <MenuItem value={row}>{row.name}</MenuItem>
-    ))
-  }
-  </Select>
-</FormControl>
         </Grid>
 
         <Grid xs={12}>
         <FormControl fullWidth>
-        <InputLabel id="demo-multiple-chip-label">Ingredients</InputLabel>
-        <Select
-          labelId="demo-multiple-chip-label"
-          id="demo-multiple-chip"
-          name="ingredients"
-          multiple
-          value={formik.values.ingredients}
-          onChange={formik.handleChange}
-          input={<OutlinedInput id="select-multiple-chip" label="Ingredients" />}
-          renderValue={(selected) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {selected.map((value) => (
-                <Chip key={value} label={value} />
-              ))}
-            </Box>
-          )}
-          // MenuProps={MenuProps}
-        >
-          {ingredients.ingredients.map((row) => (
-            <MenuItem
-              value={row.id}
-            >
-              {row.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-        </Grid>
-
-        <Grid xs={12} lg={4}>
-        <FormControl fullWidth>
-  <InputLabel id="demo-simple-select-label">Is Vegetrian</InputLabel>
+  <InputLabel id="demo-multiple-chip-label">Ingredients</InputLabel>
   <Select
-    labelId="demo-simple-select-label"
-    id="demo-simple-select"
-    value={formik.values.vegetarian}
-    label="Is Vegetarian"
-    name="vegetarian"
-    onChange={formik.handleChange}
+    labelId="demo-multiple-chip-label"
+    id="demo-multiple-chip"
+    name="ingredients"
+    multiple
+    value={formik.values.ingredientIds}
+    onChange={(e) => formik.setFieldValue("ingredientIds", e.target.value)}  // Use setFieldValue to handle the multiple selection
+    input={<OutlinedInput id="select-multiple-chip" label="Ingredients" />}
+    renderValue={(selected) => (
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+        {selected.map((value) => (
+          <Chip key={value} label={value} />
+        ))}
+      </Box>
+    )}
   >
-    <MenuItem value={true}>Yes</MenuItem>
-    <MenuItem value={false}>No</MenuItem>
+    {ingredients.ingredients.map((row) => (
+      <MenuItem key={row.id} value={row.id}>
+        {row.name}
+      </MenuItem>
+    ))}
   </Select>
 </FormControl>
-        </Grid>
 
-        <Grid xs={12} lg={4}>
-        <FormControl fullWidth>
-  <InputLabel id="demo-simple-select-label">Is Seasonal</InputLabel>
-  <Select
-    labelId="demo-simple-select-label"
-    id="demo-simple-select"
-    value={formik.values.seasonal}
-    label="Is Seasonal"
-    name="seasonal"
-    onChange={formik.handleChange}
-  >
-    <MenuItem value={true}>Yes</MenuItem>
-    <MenuItem value={false}>No</MenuItem>
-  </Select>
-</FormControl>
         </Grid>
 
       </Grid>
 
       <Button type='submit' variant='contained' color='primary'>
-        Create Restaurent
+        Create Menu Item
       </Button>
 
 </form>

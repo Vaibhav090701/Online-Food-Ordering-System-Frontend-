@@ -21,35 +21,34 @@ const RestaurentDetails = () => {
 
   const { restaurent, menu } = useSelector(store => store);
 
-  const handleFilterCategory = (e) => {
-    setSelectedFood(e.target.value);
-  };
 
   const handleFilter = (e) => {
     setFoodType(e.target.value);
   };
 
   useEffect(() => {
-    dispatch(getRestaurentById({ jwt, restaurentId: id }));
-    dispatch(getRestaurentsCategory({ jwt, restaurentId: id }));
+    dispatch(getRestaurentById({restaurentId: id, jwt:jwt}));
   }, []);
 
   useEffect(() => {
     dispatch(getMenuItemByRestaurentId({
-      jwt,
       restaurentId: id,
-      isVegetarian: foodType === "vegetarian",
-      isNonVegetarian: foodType === "non-vegetarian",
-      isSeasonal: foodType === "seasonal",
-      foodCategory: selectedFood
+      jwt:jwt
     }));
   }, [selectedFood, foodType]);
+
+   // Filter the menu items based on the selected foodType
+   const filteredMenuItems = menu.menuItems.filter((item) => {
+    if (foodType === "all") return true;  // Show all items
+    if (foodType === "vegetarian") return item.vegetarian === true;  // Show only vegetarian
+    if (foodType === "non-vegetarian") return item.vegetarian === false;  // Show only non-vegetarian
+    return true;
+  });
 
   const foodTypes = [
     { label: "All", value: "all" },
     { label: "Vegetarian only", value: "vegetarian" },
     { label: "Non-Vegetarian only", value: "non-vegetarian" },
-    { label: "Seasonal", value: "seasonal" }
   ];
 
   return (
@@ -83,7 +82,7 @@ const RestaurentDetails = () => {
           <div className="space-y-3 mt-3">
             <p className="text-gray-500 flex items-center gap-3">
               <LocationOnIcon />
-              <span>Pune, Maharashtra</span>
+              <span>{restaurent.restaurent?.address}</span>
             </p>
 
             <p className="text-gray-500 flex items-center gap-3">
@@ -122,24 +121,6 @@ const RestaurentDetails = () => {
 
             <Divider />
 
-            <div>
-              <Typography variant="h5" sx={{ paddingBottom: '1rem' }}>
-                Food Category
-              </Typography>
-
-              <FormControl className="py-10 space-y-5" component={"fieldset"}>
-
-                <RadioGroup onChange={handleFilterCategory} name="food_category" value={selectedFood}>
-                  {
-                    restaurent.categories.map((item) => (
-                      <FormControlLabel key={item} value={item.name} control={<Radio />} label={item.name} />
-                    ))
-                  }
-
-                </RadioGroup>
-              </FormControl>
-
-            </div>
 
           </div>
 
@@ -147,7 +128,11 @@ const RestaurentDetails = () => {
 
         <div className="space-y-5 lg:w-[80%] lg:pl-10">
           <Typography variant="h4">Menu</Typography>
-          {menu.menuItems.map((item) => <MenuCard key={item.id} item={item} />)}
+          {filteredMenuItems.length > 0 ? (
+            filteredMenuItems.map((item) => <MenuCard key={item.id} item={item} restaurantId={id} />)
+          ) : (
+            <p>No menu items found for the selected filter.</p>
+          )}
         </div>
 
       </section>

@@ -9,7 +9,7 @@ import { registerUser } from '../State/Authentication/Action'
 const RegisterForm = () => {
 
     const initialValues={
-        fullName:"",
+        username:"",
         email:"",
         password:"",
         role:""
@@ -36,7 +36,7 @@ const RegisterForm = () => {
 
                 {/* //it doesn't provide suggestion so write all attribute manually just you write in input tag of html */}
 
-                <Field as={TextField} name="fullName" label="Full Name" fullWidth variant="outlined" margin="normal" />
+                <Field as={TextField} name="username" label="Full Name" fullWidth variant="outlined" margin="normal" />
 
                 <Field as={TextField} name="email" label="Email" fullWidth variant="outlined" margin="normal" />
 
@@ -56,7 +56,7 @@ const RegisterForm = () => {
                         // onChange={handleChange}
                     >
                         <MenuItem value="ROLE_CUSTOMER">Customer</MenuItem>
-                        <MenuItem value="ROLE_RESTAURANT_OWNER">Restaurant Owner</MenuItem>
+                        <MenuItem value="ROLE_ADMIN">Restaurant Owner</MenuItem>
                     </Field>
                 </FormControl>
 

@@ -1,5 +1,7 @@
 import { ADD_TO_FAVOURITE_FAILURE, ADD_TO_FAVOURITE_REQUEST, ADD_TO_FAVOURITE_SUCCESS, GET_USER_FAILURE, GET_USER_REQUEST, GET_USER_SUCCESS, LOGIN_FAILURE, LOGIN_REQUEST, LOGIN_SUCCESS, LOGOUT, REGISTER_FAILURE, REGISTER_REQUEST, REGISTER_SUCCESS } from "./ActionType";
 import { API_URL, api } from "../../config/api";
+import { SHOW_NOTIFICATION } from "../Notification/ActionType";
+import { useNavigate } from "react-router-dom";
 
 export const registerUser=(reqData)=>async(dispatch)=>{
     dispatch({type:REGISTER_REQUEST})
@@ -9,7 +11,7 @@ export const registerUser=(reqData)=>async(dispatch)=>{
         const{data}=await api.post(`${API_URL}/auth/signup`,reqData.userData);
 
         //store the jwt token which receive from backend in localstorage of system
-        if(data.jwt)localStorage.setItem("jwt", data.jwt);
+        if(data.token)localStorage.setItem("jwt", data.token);
 
         //if user is registered as restaurent_owner role then we will navigate  it to admin/restaurent api
         if(data.role==="ROLE_RESTAURANT_OWNER"){
@@ -36,21 +38,39 @@ export const loginUser=(reqData)=>async(dispatch)=>{
         const{data}=await api.post(`${API_URL}/auth/signin`,reqData.userData);
 
         //store the jwt token which receive from backend in localstorage of system
-        if(data.jwt)localStorage.setItem("jwt", data.jwt);
+        if(data.token)localStorage.setItem("jwt", data.token);
 
         //if user is registered as restaurent_owner role then we will navigate  it to admin/restaurent api
-        if(data.role==="ROLE_RESTAURANT_OWNER"){
-            reqData.navigate("/admin/restaurents")
+        
+        if(data.role==="ROLE_ADMIN"){
+            setTimeout(()=>{
+                reqData.navigate("/admin/restaurents")
+            },2000)
         }
         else{
-             reqData.navigate("/");                                       
-        }
+            setTimeout(() => {
+                reqData.navigate("/");
+            }, 2000); // Wait for 2 seconds before navigating
+                }
         dispatch({type:LOGIN_SUCCESS, payload:data.jwt})
         console.log("login success",data);
+
+                      // Trigger success notification
+                      dispatch({
+                        type: SHOW_NOTIFICATION,
+                        payload: { message: 'Login successfull!', severity: 'success' }
+                    }); 
+        
 
     } catch (error) {
         dispatch({type:LOGIN_FAILURE, payload:error})
         console.log("error",error);
+
+         // Trigger error notification
+        dispatch({
+            type: SHOW_NOTIFICATION,
+                payload: { message: 'Login Failed. Please try again!', severity: 'error' }
+            });
         
     }
 }
@@ -79,7 +99,7 @@ export const addToFavouriter=({jwt,restaurentId})=>async(dispatch)=>{
     dispatch({type:ADD_TO_FAVOURITE_REQUEST})
     try {
         //pass the url of backend api in data and body is mandatory and we can pass empty body{} also/
-        const{data}=await api.put(`/api/restaurents/${restaurentId}/add-favourites`,{},{
+        const{data}=await api.put(`/api/restaurants/${restaurentId}/add-favourites`,{},{
             headers:{
                 Authorization:`Bearer ${jwt}`
             }

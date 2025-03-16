@@ -11,19 +11,21 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../State/Authentication/Action';
 
-const ProfileNavigation = (open, handleClose) => {
+const ProfileNavigation = ({ handleClose, isOpen }) => {
+
+        const isSmallScreen = useMediaQuery("(max-width:1080px)");
+
 
     const menu=[
         {title:"Orders", icon:<ShoppingBagIcon/>},
         {title:"Favourites", icon:<FavoriteIcon/>},
         {title:"Address", icon:<HomeIcon/>},
-        {title:"Payment", icon:<AccountBalanceWalletIcon/>},
+        // {title:"Payment", icon:<AccountBalanceWalletIcon/>},
         {title:"Notification", icon:<NotificationsActiveIcon/>},
         {title:"Event", icon:<EventIcon/>},
         {title:"Logout", icon:<LogoutIcon/>}
     ]
 
-    const isSmallScreen=useMediaQuery("(max-width:1080)");
 
     const navigate=useNavigate();
     const dispatch=useDispatch();  
@@ -32,26 +34,35 @@ const ProfileNavigation = (open, handleClose) => {
         if(item.title==="Logout")
             {
                 dispatch(logout());
-                navigate("/");
+                navigate('/');
             }
-
+            else{
         navigate(`/my-profile/${item.title.toLowerCase()}`)
+            }
     }
 
 
 
   return (
     <div>
-        <Drawer variant={isSmallScreen?"temporary":"permanent"} onClose={handleClose} open={open}  anchor='left' sx={{zIndex:1}} >
-
-            <div className='w-[50vw] lg:w-[20vw] h-[100vh] flex flex-col justify-center text-xl gap-[26px] pt-16'>
-                {
+        <Drawer
+            anchor='left'
+            sx={{ zIndex: 1 }}
+            open={isOpen}
+            onClose={handleClose}
+            variant={isSmallScreen ? "temporary" : "permanent"}
+        >
+        
+        <div className='w-[70vw] lg:w-[21.5vw] h-screen flex flex-col justify-center text-xl space-y-[1.5rem] bg-black mt-17'>
+        {
                     menu.map((item,i)=><>
-                        <div onClick={()=>handleNavigate(item)} className='px-5 flex items-center space-x-5 cursor-pointer'>                      
+                    <React.Fragment key={i}>
+                        <div onClick={()=>handleNavigate(item)} className='px-5 pt-5 py-2 flex items-center gap-5 cursor-pointer'>                      
                         {item.icon}
                         <span>{item.title}</span>
                         </div>
                         {i!==menu.length-1 && <Divider/>}
+                    </React.Fragment>
                    </>)
                 }
 

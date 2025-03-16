@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from './component/State/Authentication/Action';
 import { findCart } from './component/State/Cart/Action';
 import Routers from './Routers/Routers';
-import {getRestaurentByUserId } from './component/State/Restaurent/Action';
+import {getAllRestaurents, getRestaurentByUserId } from './component/State/Restaurent/Action';
 
 function App() {
 
@@ -26,9 +26,14 @@ function App() {
   },[auth.jwt]);
 
   useEffect(()=>{
-    dispatch(getRestaurentByUserId(auth.jwt || jwt));
+    dispatch(getAllRestaurents(jwt)); 
+    if(auth.jwt || jwt)
+    {
+    dispatch(getRestaurentByUserId(auth.jwt || jwt))
+    }
   },[auth.user]);
 
+  
   return (
 
     <ThemeProvider theme={darkTheme}>

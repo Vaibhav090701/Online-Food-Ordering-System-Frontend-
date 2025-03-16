@@ -28,12 +28,12 @@ const RestaurentDetails = () => {
 
         <Button
           variant="contained"
-          color={!restaurent.userRestaurent?.open ? "primary" : "error"}
+          color={!restaurent.userRestaurent?.status? "primary" : "error"}
           size="large"
           className="text-lg py-2 px-6"
           onClick={handleRestaurentStatus}
         >
-          {restaurent.userRestaurent?.open ? "Close" : "Open"}
+          {restaurent.userRestaurent?.status ? "Close" : "Open"}
         </Button>
       </div>
 
@@ -47,23 +47,15 @@ const RestaurentDetails = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Owner:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent?.user.fullName}</Typography>
+                  <Typography variant="body1">{restaurent.userRestaurent.name}</Typography>
                 </div>
 
-                <div className="flex justify-between">
-                  <Typography variant="body1" color="textSecondary">Cuisine Type:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent?.cuisineType}</Typography>
-                </div>
 
-                <div className="flex justify-between">
-                  <Typography variant="body1" color="textSecondary">Opening Hours:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent?.openingHours}</Typography>
-                </div>
 
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Status:</Typography>
                   <Typography variant="body1">
-                    {restaurent.userRestaurent?.open ? (
+                    {restaurent.userRestaurent?.status ? (
                       <Box component="span" sx={{ backgroundColor: '#4CAF50', color: '#fff', borderRadius: '20px', padding: '0.5rem' }}>
                         Open
                       </Box>
@@ -85,24 +77,10 @@ const RestaurentDetails = () => {
             <CardHeader title={<Typography variant="h6" color="white">Address</Typography>} sx={{ backgroundColor: '#333' }} />
             <CardContent>
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <Typography variant="body1" color="textSecondary">Country:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent.address?.country}</Typography>
-                </div>
-
-                <div className="flex justify-between">
-                  <Typography variant="body1" color="textSecondary">City:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent.address?.city}</Typography>
-                </div>
-
-                <div className="flex justify-between">
-                  <Typography variant="body1" color="textSecondary">Postal Code:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent.address?.postalCode}</Typography>
-                </div>
 
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Street Address:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent.address?.streetAddress}</Typography>
+                  <Typography variant="body1">{restaurent.userRestaurent.address}</Typography>
                 </div>
               </div>
             </CardContent>
@@ -115,17 +93,17 @@ const RestaurentDetails = () => {
             <CardHeader title={<Typography variant="h6" color="white">Contact Information</Typography>} sx={{ backgroundColor: '#333' }} />
             <CardContent>
               <div className="space-y-3">
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Email:</Typography>
                   <Typography variant="body1">{restaurent.userRestaurent.contactInformation?.email}</Typography>
-                </div>
+                </div> */}
 
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Mobile:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent.contactInformation?.mobile}</Typography>
+                  <Typography variant="body1">{restaurent.userRestaurent.phone}</Typography>
                 </div>
 
-                <div className="flex justify-between items-center">
+                {/* <div className="flex justify-between items-center">
                   <Typography variant="body1" color="textSecondary">Social:</Typography>
                   <div className="flex gap-3">
                     <a href={`https://instagram.com/${restaurent.userRestaurent.contactInformation?.instagram}`} target="_blank" rel="noopener noreferrer">
@@ -144,7 +122,7 @@ const RestaurentDetails = () => {
                       <FacebookIcon sx={{ fontSize: '2rem', color: 'white' }} />
                     </a>
                   </div>
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </Card>

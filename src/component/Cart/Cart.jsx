@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import CartItem from './CartItem'
 import { Box, Button, Card, Divider, Grid, Modal, TextField } from '@mui/material'
 import AddressCart from './AddressCart';
@@ -7,6 +7,11 @@ import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import { ErrorMessage, Field, Form, Formik, validateYupSchema } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { createOrder } from '../State/Order/Action';
+import { findCart } from '../State/Cart/Action';
+import { noop } from 'framer-motion';
+import { createAddress, getUsersAddress } from '../State/Address/Action';
+import NotificationSnackbar from '../../util/NotificationSnackBar';
+import { showNotification } from '../State/Notification/Action';
 
 // write this manually but not working so comment it out
 // import * as Yup from 'yup';
@@ -25,55 +30,94 @@ export const style = {
 
 const initialValues={
   streetAddress:"",
+  city:"",
   state:"",
-  pincode:"",
-  city:""
+  zipCode:0,
+  landmark:"",
+  isDefault:true
 }
 
 const Cart = () => {
 
-
-  const createOrderUsingSelectedAddress=()=>{
-
-  }
+  const jwt=localStorage.getItem("jwt");
 
   const handleOpenAddressModel=()=> setOpen(true);
 
   const [open, setOpen] = React.useState(false);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+
   const handleClose = () => setOpen(false);
 
-  const {auth,cart}=useSelector((store)=>store)
+  const {restaurent,cart, address}=useSelector((store)=>store)
   const dispatch=useDispatch();
+
+  useEffect(()=>{
+    dispatch(findCart(jwt));
+    dispatch(getUsersAddress(jwt));
+    
+},[jwt])
+
 
   const handleSubmit=(values)=>{
     const data={
-      jwt:localStorage.getItem("jwt"),
-        restaurentId:cart.cartItems[0].food?.restaurent.id,
-        address:{
-          fullName:auth.user?.fullName,
-          streetAddress:values.streetAddress,
-          city:values.city,
-          state:values.state,
-          postalCode:values.pincode,
-          country:"india"
-      }
+      streetAddress:values.streetAddress,
+      city:values.city,
+      state:values.state,
+      zipCode:values.pincode,
+      landmark:values.landmark,
+      isDefault:true,
     }
-
-    dispatch(createOrder(data))
-    console.log("value", values);
+    dispatch(createAddress({reqData:data, jwt:jwt}));
   }
 
+  const handleSelectAddress=(address)=>{
+    setSelectedAddress(address);  // Update the selected address\    
+  }
 
-  const cartItems = cart?.cartItems ?? [];
+  useEffect(() => {
+    if (selectedAddress) {
+      console.log("Selected Address", selectedAddress);
+    }
+  }, [selectedAddress]);
+
+  console.log("Cart Items", cart.cartItems);
+       
+
+  const handlePlaceOrder=()=>{
+
+    if(selectedAddress=="" || selectedAddress==null){
+      alert("Please select the address");
+    }
+    else{
+
+      const cartItemsArray = cart.cartItems.map(item => ({
+        menuItemId: item.menuItemDto.id,  // Extract the menuItemId from the cart item
+        quantity: item.quantity           // Extract the quantity from the cart item
+      }));
+
+    const data={
+      paymentMethod:"CARD",
+      addressId:selectedAddress.id,
+      orderItems:cartItemsArray,
+      restaurantId:cart.cartItems[0].restaurantId,
+    }
+    dispatch(createOrder({jwt:jwt,reqData:data}))
+  }
+  }
+
 
   return (
     <>
       <main className='lg:flex justify-between'>
 
+        <NotificationSnackbar/>
+
         <section className='lg:w-[30%] space-y-6 lg:min-h-screen pt-10' >
-          {cart.cartItems.map((item)=>   
-            <CartItem item={item}/> 
-          )}
+        {cart.cartItems && cart.cartItems.length > 0 ? (
+  cart.cartItems.map((item) => <CartItem key={item.id} item={item} />)
+) : (
+  <p>No items in the cart</p>
+)}
 
         <Divider/>
 
@@ -84,7 +128,7 @@ const Cart = () => {
 
             <div className='flex justify-between text-gray-400'>
               <p>Item Total</p>
-              <p>${cart.cart?.total}</p>
+              <p>${cart.cart?.totalPrice }</p>
             </div>
 
             <div className='flex justify-between text-gray-400'>
@@ -105,8 +149,14 @@ const Cart = () => {
             <Divider/>
             <div className='flex justify-between text-gray-400'>
               <p>Total Pay</p>
-              <p>${cart.cart?.total+20+5+14}</p>
+              <p>${(cart.cart?.totalPrice+20+5+14).toFixed(2)}</p>
+              {/* The toFixed() method allows you to specify the number of decimal places you'd like to keep. It will round the number accordingly and return a string. */}
             </div>
+
+            <Grid item xs={12}>
+                    <Button fullWidth variant='contained' onClick={handlePlaceOrder} color='primary'>Place Order</Button>
+                  </Grid>
+
 
           </div>
 
@@ -122,9 +172,11 @@ const Cart = () => {
             <h1 className='font-semibold text-center text-2xl py-10'>Choose Delivery Address</h1>
 
             <div className='flex justify-center flex-wrap gap-5'>
-              {[1,1,1].map((item)=>
+              {address.addresses.map((item)=>
                 
-                <AddressCart handleSelectAddress={createOrderUsingSelectedAddress} item={item} showButton={true}/>
+                <AddressCart key={item.id}  item={item} showButton={true} 
+                handleSelectAddress={handleSelectAddress}
+                isSelected={selectedAddress?.id === item.id} />
               )}
 
               <Card className='flex gap-5 w-64 p-5'>
@@ -218,8 +270,25 @@ install those in the system */}
                   <Grid item xs={12}>
                     <Field 
                     as={TextField} 
-                    name="pincode"
-                    label="Pincode"
+                    name="zipcode"
+                    label="Zipcode"
+                    fullWidth
+                    variant="outlined"
+                    // error={!ErrorMessage("streetAddress")}
+                    // helperText={
+                    //   <ErrorMessage>
+                    //   {(msg)=> <span className='text-red-600'>{msg}</span>}
+                    //   </ErrorMessage>
+                    // } 
+                    >
+                    </Field>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Field 
+                    as={TextField} 
+                    name="landmark"
+                    label="Landmark"
                     fullWidth
                     variant="outlined"
                     // error={!ErrorMessage("streetAddress")}

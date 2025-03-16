@@ -6,7 +6,8 @@ const initialState = {
     cartItems: [],
     error: null,
     isLoading: false,
-    success: null
+    success: null,
+    total:null,
   };
   
   export const cartReducer = (state = initialState, action) => {
@@ -28,7 +29,7 @@ const initialState = {
           ...state,
           isLoading: false,
           cart: action.payload,
-          cartItems: action.payload.item || [], // Ensure cartItems is always an array
+          cartItems: action.payload.items, // Ensure cartItems is always an array
         };
       case ADD_ITEM_TO_CART_SUCCESS:
         return {
@@ -37,12 +38,14 @@ const initialState = {
           cartItems: [action.payload, ...state.cartItems],
         };
       case UPDATE_CART_ITEM_SUCCESS:
+
+      const updatedCartItems = state.cartItems.map((item) =>
+        item.id === action.payload.id ? action.payload : item
+      );
         return {
           ...state,
           isLoading: false,
-          cartItems: state.cartItems.map((item) =>
-            item.id === action.payload.id ? action.payload : item
-          ),
+          cartItems:updatedCartItems,
         };
       case REMOVE_CART_ITEM_SUCCESS:
         return {

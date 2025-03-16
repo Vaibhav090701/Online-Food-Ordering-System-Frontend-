@@ -1,70 +1,132 @@
-import { Box, Card, CardHeader, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-import React, { useEffect } from 'react'
+import { Box, Card, CardHeader, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Pagination } from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { getRestaurentOrders } from '../../component/State/Admin/Restaurent Orders/Action';
+import { getRestaurentOrders, updateOrderStatus } from '../../component/State/Admin/Restaurent Orders/Action'; // Import the updateOrderStatus action
 
-const orders=[1,1,1,1,1,1];
-const OrderTable = () => {
+const OrderTable = ({filterValue}) => {
 
-  const dispatch=useDispatch();
-  const {restaurent, menu}=useSelector(store => store)
-  const jwt=localStorage.getItem("jwt");
-  const restaurentId=restaurent.userRestaurent.id;
-    
-  useEffect(()=>{
-    dispatch(getRestaurentOrders({restaurentId, jwt}))
-  },[])
+  const dispatch = useDispatch();
+  const { restaurentOrders, restaurent } = useSelector(store => store);
+  const jwt = localStorage.getItem("jwt");
+
+    // State for pagination
+    const [page, setPage] = useState(0);
+    const [limit, setLimit] = useState(10); // Items per page
+  
+
+  useEffect(() => {
+    dispatch(getRestaurentOrders({jwt, status:filterValue, page:page, limit}));
+  }, [dispatch, jwt, filterValue, page, limit]);
+
+    // Function to handle page changes
+    const handlePageChange = (event, newPage) => {  
+      setPage(newPage);
+    };
+  
+  // Function to update the order status
+  const handleStatusChange = (orderId, newStatus) => {
+    dispatch(updateOrderStatus(newStatus,orderId,jwt)); // Dispatch the action to update the status
+  };
 
   return (
     <Box>
-        <Card className='mt-1'>
-            <CardHeader
-            title={"All Orders"}  
-            sx={{pt:2}}
-            />
-        </Card>
+      <Card className="mt-1">
+        <CardHeader
+          title={"All Orders"}
+          sx={{ pt: 2 }}
+        />
+      </Card>
 
-        <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Id</TableCell>
-            <TableCell align="right">Image</TableCell>
-            <TableCell align="right">Customer</TableCell>
-            <TableCell align="right">Price</TableCell>
-            <TableCell align="right">Name</TableCell>
-            <TableCell align="right">Ingredients</TableCell>
-            <TableCell align="right">Status</TableCell>
-
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {orders.map((row) => (
-            <TableRow
-              key={row.name}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {1}
-              </TableCell>
-              <TableCell align="right">{"image"}</TableCell>
-              <TableCell align="right">{"foodie@gmail.com"}</TableCell>
-              <TableCell align="right">{"price"}</TableCell>
-              <TableCell align="right">{"pizza"}</TableCell>
-              <TableCell align="right">{"ingredients"}</TableCell>
-              <TableCell align="right">{"completed"}</TableCell>
-
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Id</TableCell>
+              <TableCell align="center">Customer</TableCell>
+              <TableCell align="center">Price</TableCell>
+              <TableCell align="center">Name</TableCell>
+              <TableCell align="center">Ingredients</TableCell>
+              <TableCell align="center">Status</TableCell>
+              <TableCell align="center">Actions</TableCell> {/* Add Actions column */}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {restaurentOrders.orders.map((order, index) => (
+              <TableRow
+                key={order.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {index + 1}
+                </TableCell>
+                <TableCell align="right">{order.userProfileDTO.email}</TableCell>
+                <TableCell align="right">{order.totalAmount}</TableCell>
+                <TableCell align="right">
+                  {order.items.map((item, index) => (
+                    <p key={index}>{item.itemName.name},</p>
+                  ))}
+                </TableCell>
+                <TableCell align="right">
+                  {order.items.map((item, index) => (
+                    <p key={index}>{item.itemName.ingredients.map((ingredient, i) => (
+                      <span key={i}>{ingredient.name},</span>
+                    ))}</p>
+                  ))}
+                </TableCell>
+                <TableCell align="right">{order.status}</TableCell>  
+
+                {/* Add the buttons for changing the status */}
+                <TableCell align="right">
+                  {order.status === 'PENDING' && (
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      onClick={() => handleStatusChange(order.id, 'COMPLETED')}
+                    >
+                      Mark as Completed
+                    </Button>
+                  )}
+
+                  {order.status === 'COMPLETED' && (
+                    <Button 
+                      variant="contained" 
+                      color="secondary" 
+                      onClick={() => handleStatusChange(order.id, 'DELIVERED')}
+                    >
+                      Mark as Delivered
+                    </Button>
+                  )}
+
+                  {/* Disable buttons if order is delivered */}
+                  {order.status === 'DELIVERED' && (
+                    <Button 
+                      variant="contained" 
+                      color="default" 
+                      disabled
+                    >
+                      Delivered
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+            {/* Pagination Controls */}
+            <Box display="flex" justifyContent="center" sx={{ marginTop: 3 }}>
+        <Pagination
+          count={Math.ceil(10 / limit)} // Total pages
+          page={page}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
+
 
     </Box>
-  )
+  );
 }
 
-export default OrderTable
-
-
-
+export default OrderTable;

@@ -33,15 +33,13 @@ const IngredientTable = () => {
   const handleClose = () => setOpen(false);
 
   useEffect(()=>{
-      dispatch(getIngredientsOfRestaurent({id:restaurentId, jwt}))
+      dispatch(getIngredientsOfRestaurent(jwt))
   },[])  
   
   const handleUpdateStock=(id)=>{
     dispatch(updateStockOfIngredient({id, jwt}))
 
   }
-  
-  
 
   return (
     <Box>
@@ -64,7 +62,7 @@ const IngredientTable = () => {
           <TableRow>
             <TableCell align='left'>Id</TableCell>
             <TableCell align="right">Name</TableCell>
-            <TableCell align="right">Category</TableCell>
+            <TableCell align="right">Quantity</TableCell>
             <TableCell align="right">Avaibility</TableCell>
 
           </TableRow>
@@ -72,16 +70,16 @@ const IngredientTable = () => {
         <TableBody>
           {ingredients.ingredients.map((row) => (
             <TableRow
-              key={row.name}
+              key={row.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">
                 {row.id}
               </TableCell>
               <TableCell align="right">{row.name}</TableCell>
-              <TableCell align="right">{row.category.name}</TableCell>
+              <TableCell align="right">{row.quantityInStock}</TableCell>
               <TableCell align="right">
-                <Button onClick={()=>handleUpdateStock(row.id)}>{row.inStock?"in_stock":"out_of_stock"}</Button>
+                <Button onClick={()=>handleUpdateStock(row.id)}>{row.quantityInStock>0?"in_stock":"out_of_stock"}</Button>
               </TableCell>
 
             </TableRow>

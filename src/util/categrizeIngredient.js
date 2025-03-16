@@ -1,14 +1,16 @@
-export const categrizeIngredient=(ingredients)=>{
-    return ingredients.reduce((acc,ingredient)=>{
-        const {category}=ingredient //here we are destructuring the category from ingredient array
-        if(!acc[category.name]){//here we are checking the key is already present inside acc or not. acc is accumulator. It is an object
-            acc[category.name]=[];
-        }
-
-        acc[category.name].push(ingredient);
-        return acc;
-
-    },{})
-}
-
-//acc value is empty object
+export const categrizeIngredient = (ingredients) => {
+    // Check if ingredients is undefined or not an array
+    if (!ingredients || !Array.isArray(ingredients)) {
+      return {}; // Return an empty object if ingredients is invalid
+    }
+  
+    return ingredients.reduce((acc, ingredient) => {
+      const { category } = ingredient; // Destructure the category from the ingredient
+      if (!acc[category.name]) { // Check if the category key exists in the accumulator
+        acc[category.name] = []; // Initialize the category key with an empty array
+      }
+  
+      acc[category.name].push(ingredient); // Push the ingredient into the category array
+      return acc; // Return the accumulator for the next iteration
+    }, {}); // Initialize the accumulator as an empty object
+  };

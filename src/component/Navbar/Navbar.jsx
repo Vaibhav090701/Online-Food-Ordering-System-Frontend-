@@ -8,6 +8,7 @@ import { Person } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { store } from '../State/Store';
+import NotificationSnackbar from '../../util/NotificationSnackBar';
 
 const Navbar = () => {
 
@@ -34,6 +35,9 @@ const Navbar = () => {
                 </li>
             </div>
 
+            <NotificationSnackbar/>
+
+
             <div className='flex items-center space-x-2 lg:space-x-10'>
                 <div className=''>
                     <IconButton >
@@ -42,7 +46,7 @@ const Navbar = () => {
                 </div>
 
                 <div>
-                   {auth.user ? (<Avatar sx={{bgcolor:"white",color:pink.A400}} onClick={handleAvatarClick}>{auth.user?.fullName[0].toUpperCase()}</Avatar>):
+                   {auth.user ? (<Avatar sx={{bgcolor:"white",color:pink.A400}} onClick={handleAvatarClick}>{auth.user?.name[0].toUpperCase()}</Avatar>):
 
                    <IconButton onClick={()=>navigate("/account/login")}>
                     <Person/>
@@ -51,7 +55,7 @@ const Navbar = () => {
 
                 <div className=''>
                     <IconButton onClick={()=>navigate('/cart')} >
-                        <Badge color='secondary' badgeContent={'1'}>
+                        <Badge color='secondary' badgeContent={cart.cartItems.length}>
                         <ShoppingCartIcon sx={{fontSize:"1.5rem"}} ></ShoppingCartIcon>
                         </Badge>
 

@@ -1,11 +1,11 @@
 import { api } from "../../config/api";
 import { CREATE_INGREDIENT_CATEGORY_FAILURE, CREATE_INGREDIENT_CATEGORY_REQUEST, CREATE_INGREDIENT_CATEGORY_SUCCESS, CREATE_INGREDIENT_FAILURE, CREATE_INGREDIENT_REQUEST, CREATE_INGREDIENT_SUCCESS, GET_INGREDIENTS, GET_INGREDIENT_CATEGORY_FAILURE, GET_INGREDIENT_CATEGORY_REQUEST, GET_INGREDIENT_CATEGORY_SUCCESS, UPDATE_STOCK } from "./ActionTypes";
 
-export const getIngredientsOfRestaurent=({id,jwt})=>{
+export const getIngredientsOfRestaurent=(jwt)=>{
     return async(dispatch)=>{
 
         try {
-            const {data}=await api.get(`/api/admin/ingredients/restaurent/${id}`,{
+            const {data}=await api.get(`/api/admin/ingredients`,{
                 headers:{
                     Authorization:`Bearer ${jwt}`
                 },
@@ -24,7 +24,7 @@ export const createIngredient=({reqData,jwt})=>{
         dispatch({type:CREATE_INGREDIENT_REQUEST})
 
         try {
-            const {data}=await api.post(`api/admin/ingredients`, reqData,{
+            const {data}=await api.post(`/api/admin/ingredients`, reqData,{
                 headers:{
                     Authorization:`Bearer ${jwt}`
                 },

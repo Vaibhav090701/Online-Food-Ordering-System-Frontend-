@@ -6,7 +6,7 @@ export const createEvent=({data,jwt})=>{
         dispatch({type:CREATE_EVENTS_REQUEST})
 
         try {
-            const res=await api.post('/api/admin/event',data,{
+            const res=await api.post('/api/admin/restaurant/event',data,{
                 headers:{
                     Authorization:`Bearer ${jwt}`,
                 }
@@ -46,7 +46,7 @@ export const deleteEvents=({eventId,jwt})=>{
         dispatch({type:DELETE_EVENTS_REQUEST})
 
         try {
-            const res=await api.delete(`/api/admin/event/${eventId}/delete`,{
+            const res=await api.delete(`/api/admin/restaurant/event/${eventId}/delete`,{
                 headers:{
                     Authorization:`Bearer ${jwt}`,
                 }
@@ -66,7 +66,7 @@ export const getRestaurentsEvents=({restaurentId,jwt})=>{
         dispatch({type:GET_RESTAURENTS_EVENTS_REQUEST})
 
         try {
-            const res=await api.get(`/api/admin/event/${restaurentId}/restaurent`,{
+            const res=await api.get(`/api/admin/restaurant/event/${restaurentId}/restaurent`,{
                 headers:{
                     Authorization:`Bearer ${jwt}`,
                 }
