@@ -35,7 +35,7 @@ const   RestaurentCard = ({item}) => {
 
   return (
     <div>
-        <Card className='w-[18rem]'>
+        <Card className='w-[18rem] bg-white'>
 
             <div className={`${true?'cursor-pointer':'cursor-not-allowed'} relative`}>
                 <img className='w-full h-[10rem] rounded-t-md object-cover' 
@@ -48,14 +48,20 @@ const   RestaurentCard = ({item}) => {
             <div className='p-4 textPart lg:flex w-full justify-between'>
 
                 <div className='space-y-1'>
-                    <p onClick={handleNavigateToRestaurent} className='font-semibold text-lg cursor-pointer'>{item.name}</p>
-                    <p className='text-grey-500 text-sm'>{item.description}</p>
+                    <p onClick={handleNavigateToRestaurent} className='font-semibold text-lg cursor-pointer text-gray-700'>{item.name}</p>
+                    <p className='text-grey-500 text-sm text-gray-500'>{item.description}</p>
 
                 </div>
 
                 <div>
-                    <IconButton onClick={handleAddToFavourite}>
-                        {isPresentInFavourites(auth.favourites,item)?<FavoriteIcon/>:<FavoriteBorderIcon/>}
+                    <IconButton onClick={handleAddToFavourite} 
+                    sx={{
+                        color: isPresentInFavourites(auth.favourites, item) ? 'red' : 'gray', // Icon color
+                      }}
+                    >
+                        {isPresentInFavourites(auth.favourites,item)?
+                        (<FavoriteIcon  sx={{ color: 'red' }}/>) :
+                        (<FavoriteBorderIcon sx={{ color: 'gray' }}/>)}
                     </IconButton>
                 </div>
             </div>

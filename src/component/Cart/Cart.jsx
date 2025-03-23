@@ -12,6 +12,7 @@ import { noop } from 'framer-motion';
 import { createAddress, getUsersAddress } from '../State/Address/Action';
 import NotificationSnackbar from '../../util/NotificationSnackBar';
 import { showNotification } from '../State/Notification/Action';
+import { useNavigate } from 'react-router-dom';
 
 // write this manually but not working so comment it out
 // import * as Yup from 'yup';
@@ -85,6 +86,8 @@ const Cart = () => {
 
   const handlePlaceOrder=()=>{
 
+    const navigate = useNavigate(); // Initialize navigate
+
     if(selectedAddress=="" || selectedAddress==null){
       alert("Please select the address");
     }
@@ -101,7 +104,7 @@ const Cart = () => {
       orderItems:cartItemsArray,
       restaurantId:cart.cartItems[0].restaurantId,
     }
-    dispatch(createOrder({jwt:jwt,reqData:data}))
+    dispatch(createOrder({jwt:jwt,reqData:data, navigate}))
   }
   }
 

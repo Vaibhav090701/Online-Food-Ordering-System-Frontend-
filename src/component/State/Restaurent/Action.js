@@ -86,12 +86,12 @@ export const createRestaurent=(reqData)=>{
 
 }
 
-export const updateRestaurent=({restaurentData, restaurentId,jwt})=>{
+export const updateRestaurantInfo=({restaurentId,jwt,updatedInfo})=>{
     console.log("token:- ",jwt);
     return async(dispatch)=>{
         dispatch({type:UPDATE_RESTAURENT_REQUEST})
         try {
-            const {data}=await api.put(`/api/admin/restaurents/${restaurentId}`, restaurentData,{
+            const {data}=await api.put(`/api/admin/restaurant/${restaurentId}`, updatedInfo,{
                 headers:{
                     Authorization:`Bearer ${jwt}`,
                 }

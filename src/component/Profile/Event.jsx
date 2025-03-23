@@ -26,7 +26,7 @@ const Event = () => {
         {
           allEvents.map((item) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={item.eventId}>
-              <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%', borderRadius: 3, boxShadow: 3, bgcolor: '#1c1c1c' }}>
+              <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%', borderRadius: 3, boxShadow: 3, bgcolor: 'white' }}>
                 <CardMedia
                   component="img"
                   height="200"
@@ -35,16 +35,16 @@ const Event = () => {
                   sx={{ objectFit: 'cover' }}
                 />
                 <CardContent sx={{ flexGrow: 1, padding: 2 }}>
-                  <Typography variant="h6" component="div" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                  <Typography variant='h6' className="font-semibold text-gray-700">
                     {item.eventName}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ color: '#ccc', marginBottom: 1 }}>
+                  <Typography className="font-semibold text-gray-700">
                     {item.location}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ color: '#ccc', marginBottom: 2 }}>
+                  <Typography variant="body2"className="text-gray-500">
                     {`${new Date(item.startDate).toLocaleString()} - ${new Date(item.endDate).toLocaleString()}`}
                   </Typography>
-                  <Button variant="outlined" color="primary" size="small" sx={{ width: '100%' }}>
+                  <Button variant="contained" color="primary" size="small" sx={{ width: '100%' }}>
                     More Info
                   </Button>
                 </CardContent>

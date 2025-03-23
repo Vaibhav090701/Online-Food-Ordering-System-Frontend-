@@ -1,21 +1,53 @@
-import { Button, Card, CardContent, CardHeader, Grid, Typography, Box } from '@mui/material';
-import React from 'react';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import { Button, Card, CardContent, CardHeader, Grid, Typography, Box, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateRestaurentStatus } from '../../component/State/Restaurent/Action';
+import { updateRestaurantInfo, updateRestaurentStatus} from '../../component/State/Restaurent/Action';
 
 const RestaurentDetails = () => {
   const { restaurent } = useSelector(store => store);
   const dispatch = useDispatch();
+
+  const [openEditForm, setOpenEditForm] = useState(false); // To control the form visibility
+  const [updatedInfo, setUpdatedInfo] = useState({
+    name: restaurent.userRestaurent?.name || '',
+    address: restaurent.userRestaurent?.address || '',
+    phone: restaurent.userRestaurent?.phone || '',
+    email: restaurent.userRestaurent?.email || '',
+    twitter: restaurent.userRestaurent?.twitter || '',
+    instagram: restaurent.userRestaurent?.instagram || '',
+    description: restaurent.userRestaurent?.description || '',
+  });
 
   const handleRestaurentStatus = () => {
     dispatch(updateRestaurentStatus({
       restaurentId: restaurent.userRestaurent.id,
       jwt: localStorage.getItem("jwt")
     }));
+  };
+
+  const handleEditClick = () => {
+    setOpenEditForm(true); // Open the edit form
+  };
+
+  const handleCloseEditForm = () => {
+    setOpenEditForm(false); // Close the edit form without saving
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedInfo(prevState => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleUpdate = () => {
+    dispatch(updateRestaurantInfo({
+      restaurentId: restaurent.userRestaurent.id,
+      jwt: localStorage.getItem("jwt"),
+      updatedInfo
+    }));
+    setOpenEditForm(false); // Close the form after updating
   };
 
   return (
@@ -25,16 +57,27 @@ const RestaurentDetails = () => {
         <Typography variant="h3" className="font-bold text-center text-white mb-6 md:mb-0">
           {restaurent.userRestaurent?.name}
         </Typography>
+        <div>
+          <Button
+            variant="contained"
+            color={!restaurent.userRestaurent?.status ? "primary" : "error"}
+            size="large"
+            className="text-lg py-2 px-6"
+            onClick={handleRestaurentStatus}
+          >
+            {restaurent.userRestaurent?.status ? "Close" : "Open"}
+          </Button>
 
-        <Button
-          variant="contained"
-          color={!restaurent.userRestaurent?.status? "primary" : "error"}
-          size="large"
-          className="text-lg py-2 px-6"
-          onClick={handleRestaurentStatus}
-        >
-          {restaurent.userRestaurent?.status ? "Close" : "Open"}
-        </Button>
+          <Button
+            variant="contained"
+            color={'primary'}
+            size="large"
+            className="text-lg py-2 px-6"
+            onClick={handleEditClick} // Open edit form on click
+          >
+            Edit Info
+          </Button>
+        </div>
       </div>
 
       {/* Main Content Section */}
@@ -49,8 +92,6 @@ const RestaurentDetails = () => {
                   <Typography variant="body1" color="textSecondary">Owner:</Typography>
                   <Typography variant="body1">{restaurent.userRestaurent.name}</Typography>
                 </div>
-
-
 
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Status:</Typography>
@@ -77,7 +118,6 @@ const RestaurentDetails = () => {
             <CardHeader title={<Typography variant="h6" color="white">Address</Typography>} sx={{ backgroundColor: '#333' }} />
             <CardContent>
               <div className="space-y-3">
-
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Street Address:</Typography>
                   <Typography variant="body1">{restaurent.userRestaurent.address}</Typography>
@@ -93,41 +133,108 @@ const RestaurentDetails = () => {
             <CardHeader title={<Typography variant="h6" color="white">Contact Information</Typography>} sx={{ backgroundColor: '#333' }} />
             <CardContent>
               <div className="space-y-3">
-                {/* <div className="flex justify-between">
-                  <Typography variant="body1" color="textSecondary">Email:</Typography>
-                  <Typography variant="body1">{restaurent.userRestaurent.contactInformation?.email}</Typography>
-                </div> */}
-
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Mobile:</Typography>
                   <Typography variant="body1">{restaurent.userRestaurent.phone}</Typography>
                 </div>
 
-                {/* <div className="flex justify-between items-center">
-                  <Typography variant="body1" color="textSecondary">Social:</Typography>
-                  <div className="flex gap-3">
-                    <a href={`https://instagram.com/${restaurent.userRestaurent.contactInformation?.instagram}`} target="_blank" rel="noopener noreferrer">
-                      <InstagramIcon sx={{ fontSize: '2rem', color: 'white' }} />
-                    </a>
+                <div className="flex justify-between">
+                  <Typography variant="body1" color="textSecondary">Email:</Typography>
+                  <Typography variant="body1">{restaurent.userRestaurent.email}</Typography>
+                </div>
 
-                    <a href={`https://twitter.com/${restaurent.userRestaurent.contactInformation?.twitter}`} target="_blank" rel="noopener noreferrer">
-                      <TwitterIcon sx={{ fontSize: '2rem', color: 'white' }} />
-                    </a>
+                <div className="flex justify-between">
+                  <Typography variant="body1" color="textSecondary">Instagram:</Typography>
+                  <Typography variant="body1">{restaurent.userRestaurent.instagram}</Typography>
+                </div>
 
-                    <a href="/" target="_blank" rel="noopener noreferrer">
-                      <LinkedInIcon sx={{ fontSize: '2rem', color: 'white' }} />
-                    </a>
-
-                    <a href="/" target="_blank" rel="noopener noreferrer">
-                      <FacebookIcon sx={{ fontSize: '2rem', color: 'white' }} />
-                    </a>
-                  </div>
-                </div> */}
+                <div className="flex justify-between">
+                  <Typography variant="body1" color="textSecondary">Twitter:</Typography>
+                  <Typography variant="body1">{restaurent.userRestaurent.twitter}</Typography>
+                </div>
               </div>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
+
+      {/* Edit Restaurant Form Dialog */}
+      <Dialog open={openEditForm} onClose={handleCloseEditForm}>
+        <DialogTitle>Edit Restaurant Information</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Restaurant Name"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="name"
+            value={updatedInfo.name}
+            onChange={handleInputChange}
+          />
+          <TextField
+            label="Address"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="address"
+            value={updatedInfo.address}
+            onChange={handleInputChange}
+          />
+          <TextField
+            label="Phone"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="phone"
+            value={updatedInfo.phone}
+            onChange={handleInputChange}
+          />
+            <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="email"
+            value={updatedInfo.email}
+            onChange={handleInputChange}
+          />
+            <TextField
+            label="Twitter"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="twitter"
+            value={updatedInfo.twitter}
+            onChange={handleInputChange}
+          />
+            <TextField
+            label="Instagram"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="instagram"
+            value={updatedInfo.instagram}
+            onChange={handleInputChange}
+          />
+            <TextField
+            label="Description"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="description"
+            value={updatedInfo.description}
+            onChange={handleInputChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEditForm} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} color="primary">
+            Update
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

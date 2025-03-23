@@ -12,33 +12,7 @@ const Address = () => {
     dispatch(getUsersAddress(jwt))
   },[jwt]);
 
-  // Sample data for multiple addresses
-  const userAddresses = [
-    {
-      id: 1,
-      street: '123 Main St',
-      city: 'Springfield',
-      state: 'IL',
-      zip: '62701',
-      country: 'USA',
-    },
-    {
-      id: 2,
-      street: '456 Elm St',
-      city: 'Chicago',
-      state: 'IL',
-      zip: '60601',
-      country: 'USA',
-    },
-    {
-      id: 3,
-      street: '789 Oak St',
-      city: 'Madison',
-      state: 'WI',
-      zip: '53703',
-      country: 'USA',
-    },
-  ];
+
 
   return (
     <Box sx={{ padding: 2 }}>
@@ -49,18 +23,18 @@ const Address = () => {
       <Grid container spacing={3} justifyContent="center">
         {address.addresses.map((address,index) => (
           <Grid item xs={12} sm={6} md={4} key={address.id}>
-            <Card elevation={3}>
+            <Card elevation={3} className="bg-white shadow-md rounded-lg">
               <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" className="font-semibold text-gray-700" gutterBottom>
                   Address {index+1}
                 </Typography>
-                <Typography variant="body1">Street: {address.streetAddress}</Typography>
-                <Typography variant="body1">Landmark: {address.landmark}</Typography>
-                <Typography variant="body1">City: {address.city}</Typography>
-                <Typography variant="body1">State: {address.state}</Typography>
-                <Typography variant="body1">ZIP Code: {address.zipCode}</Typography>
+                <Typography variant="body1"  className="text-gray-500">Street: {address.streetAddress}</Typography>
+                <Typography variant="body1"  className="text-gray-500">Landmark: {address.landmark}</Typography>
+                <Typography variant="body1"  className="text-gray-500">City: {address.city}</Typography>
+                <Typography variant="body1"  className="text-gray-500">State: {address.state}</Typography>
+                <Typography variant="body1"  className="text-gray-500">ZIP Code: {address.zipCode}</Typography>
               </CardContent>
-              <Button>Update Address</Button>
+              <Button variant='contained'>Update Address</Button>
             </Card>
           </Grid>
         ))}

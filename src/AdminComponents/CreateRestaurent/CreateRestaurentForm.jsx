@@ -12,6 +12,9 @@ export const initialValues={
   description:"",
   address:"",
   phone:"",
+  email:"",
+  twitter:"",
+  instagram:"",
   status:"",
   images:[],
 }
@@ -31,6 +34,9 @@ const CreateRestaurentForm = () => {
         description:values.description,
         address:values.address,
         phone:values.phone,
+        email:values.email,
+        twitter:values.twitter,
+        instagram:values.instagram,
         status:"CLOSED",
         images:values.images,
       };
@@ -156,6 +162,40 @@ p-3 border rounded-md border-gray-600'>
           value={formik.values.phone}
           />
         </Grid>
+                <Grid xs={12} lg={6}>
+                  <TextField fullWidth
+                  id="email"
+                  name="email"
+                  label="Email"
+                  variednt="outined"
+                  onChange={formik.handleChange}
+                  value={formik.values.email}
+                  />
+                </Grid>
+                
+                <Grid xs={12} lg={6}>
+                  <TextField fullWidth
+                  id="instagram"
+                  name="instagram"
+                  label="instagram"
+                  variednt="outined"
+                  onChange={formik.handleChange}
+                  value={formik.values.instagram}
+                  />
+                </Grid>
+        
+                <Grid xs={12} lg={6}>
+                  <TextField fullWidth
+                  id="twitter"
+                  name="twitter"
+                  label="twitter"
+                  variednt="outined"
+                  onChange={formik.handleChange}
+                  value={formik.values.twitter}
+                  />
+                </Grid>
+        
+        
 
       </Grid>
 

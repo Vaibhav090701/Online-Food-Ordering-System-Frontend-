@@ -2,10 +2,9 @@ import { CREATE_ORDER_FAILURE, CREATE_ORDER_REQUEST, CREATE_ORDER_SUCCESS, GET_U
 import { api } from "../../config/api";
 import { Snackbar } from '@mui/material';
 import { HIDE_NOTIFICATION, SHOW_NOTIFICATION } from "../Notification/ActionType";
-import { useNavigate } from "react-router-dom";
 
-export const createOrder = ({jwt,reqData}) => {
-    const navigate=useNavigate();
+
+export const createOrder = ({jwt,reqData, navigate}) => {
     return async (dispatch) => {
         dispatch({ type: CREATE_ORDER_REQUEST });
 
@@ -32,7 +31,10 @@ export const createOrder = ({jwt,reqData}) => {
                 type: SHOW_NOTIFICATION,
                 payload: { message: 'Order created successfully!', severity: 'success' }
             }); 
-            navigate("/my-profile/orders");
+
+            if(navigate){
+                navigate("/my-profile/orders")
+            }
 
         } catch (error) {
             dispatch({ type: CREATE_ORDER_FAILURE, payload: error });
