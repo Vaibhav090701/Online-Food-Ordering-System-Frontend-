@@ -43,22 +43,27 @@ const RegisterForm = () => {
                 <Field as={TextField} name="password" label="Password" fullWidth variant="outlined" margin="normal" type="password" />
 
                 {/* //take it from material ui 'select' component and change select tag to field tag */}
-                <FormControl fullWidth margin="normal">
-                    <InputLabel id="demo-simple-select-label">Role</InputLabel>
-
-                    <Field
-                        as={Select}
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        name="role"
-                        // value={age}
-                        label="Role"
-                        // onChange={handleChange}
-                    >
-                        <MenuItem value="ROLE_CUSTOMER">Customer</MenuItem>
-                        <MenuItem value="ROLE_ADMIN">Restaurant Owner</MenuItem>
-                    </Field>
-                </FormControl>
+                    {/* Dropdown for Role */}
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel id="demo-simple-select-label">Role</InputLabel>
+                        <Field
+                            as={Select}
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            name="role"
+                            label="Role"
+                            MenuProps={{
+                                PaperProps: {
+                                    sx: {
+                                        backgroundColor: '#000', // Set background color of dropdown
+                                    }
+                                }
+                            }}
+                        >
+                            <MenuItem value="ROLE_CUSTOMER">Customer</MenuItem>
+                            <MenuItem value="ROLE_ADMIN">Restaurant Owner</MenuItem>
+                        </Field>
+                    </FormControl>
 
                 <Button sx={{mt:2,padding:"1rem"}} type='submit' fullWidth variant='contained'>Register</Button>
 

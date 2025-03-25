@@ -2,7 +2,9 @@ import React from 'react'
 
 const Notification = () => {
   return (
-    <div>Notification</div>
+    <div>
+      <h1 className='ml-2 text-white'>Notification</h1>
+    </div>
   )
 }
 

@@ -23,10 +23,45 @@ export const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
-  bgcolor: 'background.paper',
+  bgcolor: 'white',
   outline:"none",
   boxShadow: 24,
   p: 4,
+  // Typography Color
+  '& .MuiTypography-root': {
+    color: '#000', // Set default text color for all Typography components inside Box
+  },
+
+    // Adding styles to ensure text visibility in input fields
+    '& .MuiInputLabel-root': {
+      color: '#000', // Change label color to black
+    },
+    '& .MuiInputBase-root': {
+      color: '#000', // Change input text color to black
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: '#000', // Change border color of text fields
+      },
+      '&:hover fieldset': {
+        borderColor: '#000', // Change border color when the field is focused
+      },
+    },
+     // Style for MenuItem inside Select dropdown
+  '& .MuiMenuItem-root': {
+    backgroundColor: '#000', // Set background color to black
+    color: '#fff', // Set text color to white for contrast
+    '&:hover': {
+      backgroundColor: '#333', // Darker background when hovering over an option
+    }
+  },
+
+    // Style for Select dropdown menu background
+    '& .MuiMenu-paper': {
+      backgroundColor: '#000', // Set the background of the dropdown to black
+      color: '#fff', // Set text color inside the dropdown to white
+    },
+  
 };
 
 const initialValues={
@@ -82,11 +117,11 @@ const Cart = () => {
   }, [selectedAddress]);
 
   console.log("Cart Items", cart.cartItems);
-       
+  const navigate = useNavigate(); // Initialize navigate
+  
 
   const handlePlaceOrder=()=>{
 
-    const navigate = useNavigate(); // Initialize navigate
 
     if(selectedAddress=="" || selectedAddress==null){
       alert("Please select the address");

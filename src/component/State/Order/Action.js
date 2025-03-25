@@ -17,9 +17,9 @@ export const createOrder = ({jwt,reqData, navigate}) => {
 
             console.log("Order response data:", data);
 
-            if (data.payment_url) {
-                console.log("Redirecting to payment URL:", data.payment_url);
-                window.location.href = data.payment_url;
+            if (data.paymentResponse) {
+                console.log("Redirecting to payment URL:", data.paymentResponse.payment_url);
+                window.location.href = data.paymentResponse.payment_url;
             } else {
                 console.log("No payment URL provided.");
             }

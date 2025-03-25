@@ -1,6 +1,6 @@
 import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material'
 import { Chip, IconButton } from '@mui/material'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { findCart, removeCartItem, updateCartItem } from '../State/Cart/Action'
@@ -13,6 +13,15 @@ const CartItem = ({item}) => {
     const jwt=localStorage.getItem("jwt");
 
     console.log("Item", item);
+    const [imageSrc, setImageSrc] = useState(null);
+
+    useEffect(() => {
+        // Check if images are available and set the first image as the source
+        if (item?.menuItemDto?.images && item.menuItemDto.images.length > 0) {
+          setImageSrc(item.menuItemDto.images[0]);
+        }
+      }, [item]);
+    
     
 
     const handleUpdateCartItem=(value)=>{
@@ -34,7 +43,12 @@ const CartItem = ({item}) => {
     <div className='pt-5'>
         <div className='lg:flex items-center lg:space-x-5'>
             <div>
-                <img className='w-[5rem] h-[5rem] object-cover' src={item.menuItemDto.images[0]} alt="" />
+                {/* Check if imageSrc is available before rendering */}
+          {imageSrc ? (
+            <img className="w-[5rem] h-[5rem] object-cover" src={imageSrc} alt={item.name} />
+          ) : (
+            <div className="w-[5rem] h-[5rem] bg-gray-300 flex items-center justify-center">No Image</div>
+          )}
             </div>
 
             <div className='flex items-center justify-between lg:w-[70%]'>
@@ -62,7 +76,12 @@ const CartItem = ({item}) => {
         </div>
 
         <div className='pt-3 space-x-2'>
-            {item.ingredients.map((ingredient, index)=> <Chip key={index} label={ingredient}/>)}
+
+            {item.ingredients?.length > 0 && item.ingredients ? (
+                ingredients.map((ingredient, index)=> <Chip key={index} label={ingredient}/>))
+            :(
+                <p className="text-gray-500">No ingredients selected</p> // Message when no ingredients
+              )}
         </div>
     </div>
   )

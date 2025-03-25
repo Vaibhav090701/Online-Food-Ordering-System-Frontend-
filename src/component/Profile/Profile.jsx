@@ -60,7 +60,7 @@ const Profile = () => {
                 <Route path='/favourites' element={<Favourites/>}></Route>
                 <Route path='/address' element={<Address/>}></Route>
                 <Route path='/payment' element={<Payment/>}></Route>
-                <Route path='/noification' element={<Notification/>}></Route>
+                <Route path='/notification' element={<Notification/>}></Route>
                 <Route path='/event' element={<Event/>}></Route>
                 {/* <Route path='/logout' element={<Logout/>}></Route> */}
             </Routes>

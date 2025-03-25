@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Button, Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+import { Button, Checkbox, Chip, FormControlLabel, FormGroup } from '@mui/material';
 import { categrizeIngredient } from '../../util/categrizeIngredient';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addItemToCart } from '../State/Cart/Action';
 
 
@@ -13,7 +13,17 @@ const MenuCard = ({item, restaurantId}) => {
 
   const [selectedIngredients,setSelectedIngredients]=useState([ ]);
 
+  const [available, setAvailable]=useState(true);
+
+  useEffect(()=>{
+    if(!item.available){
+      setAvailable(false);
+    }
+  },[available])
+
   const dispatch=useDispatch();
+  const {restaurent}=useSelector((store)=>store)
+
 
   const handleAddItemToCart=(e)=>{
     e.preventDefault();
@@ -64,35 +74,46 @@ const MenuCard = ({item, restaurantId}) => {
         </div>
 
       </div>
+      {
+        !available &&
+        <Chip size='small' color={item.available?"success":"error"} label={item.available?"":"Out Of Stock"}></Chip>
+      }
 
       </AccordionSummary>
+      
+
+      {item.available &&
+
+<AccordionDetails>
+
+<form onSubmit={handleAddItemToCart}>
+  <div className='flex flex-wrap gap-5'>
+    {item.ingredients.map((ingredient)=> 
+    <div>
+      <p>Choose Ingredients</p>
+      <FormGroup>
+
+        {item.ingredients.map((item)=>
+          <FormControlLabel key={item.id} control={<Checkbox onChange={()=>handleCheckBoxChange(item.name)} />} label={item.name} />
+        )}
+
+      </FormGroup>
+    </div>
+    
+    )}
+
+  </div>
+
+  <div className='pt-5'>
+    <Button type='submit' variant='contained' disabled={false} >{true?"Add to Cart":"Out of Stock"}</Button>
+  </div>
+
+</form>
+</AccordionDetails>
+
+
+      }
   
-    <AccordionDetails>
-
-      <form onSubmit={handleAddItemToCart}>
-        <div className='flex flex-wrap gap-5'>
-          {item.ingredients.map((ingredient)=> 
-          <div>
-            <p>Choose Ingredients</p>
-            <FormGroup>
-
-              {item.ingredients.map((item)=>
-                <FormControlLabel key={item.id} control={<Checkbox onChange={()=>handleCheckBoxChange(item.name)} />} label={item.name} />
-              )}
-
-            </FormGroup>
-          </div>
-          
-          )}
-
-        </div>
-
-        <div className='pt-5'>
-          <Button type='submit' variant='contained' disabled={false} >{true?"Add to Cart":"Out of Stock"}</Button>
-        </div>
-
-      </form>
-    </AccordionDetails>
   </Accordion>
 
   )

@@ -1,7 +1,11 @@
-import { Button, Card, CardContent, CardHeader, Grid, Typography, Box, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Button, Card, CardContent, CardHeader, Grid, Typography, Box, TextField, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress, IconButton } from '@mui/material';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateRestaurantInfo, updateRestaurentStatus} from '../../component/State/Restaurent/Action';
+import { uploadImageToCloudinary } from '../util/UploadToCloudinary';
+import { AddPhotoAlternate} from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
+
 
 const RestaurentDetails = () => {
   const { restaurent } = useSelector(store => store);
@@ -16,6 +20,7 @@ const RestaurentDetails = () => {
     twitter: restaurent.userRestaurent?.twitter || '',
     instagram: restaurent.userRestaurent?.instagram || '',
     description: restaurent.userRestaurent?.description || '',
+    images:restaurent.userRestaurent?.images || [],
   });
 
   const handleRestaurentStatus = () => {
@@ -49,6 +54,37 @@ const RestaurentDetails = () => {
     }));
     setOpenEditForm(false); // Close the form after updating
   };
+
+    const [uploadImage, setUploadImage]=useState(false);
+  
+
+  const handleImageChange=async(e)=>{
+      const file=e.target.files[0];
+      setUploadImage(true);
+      const image=await uploadImageToCloudinary(file);
+      console.log("image-", image);
+      
+      // formik.setFieldValue("images",[...formik.values.images, image]);
+
+            // Add the uploaded image to the updatedInfo state
+            setUpdatedInfo((prevState) => ({
+              ...prevState,
+              images: [...prevState.images, image],
+            }));
+      
+      setUploadImage(false);
+    };
+
+    const handleRemoveImage=(index)=>{
+
+      const newImages = updatedInfo.images.filter((_, idx) => idx !== index);
+    setUpdatedInfo((prevState) => ({
+      ...prevState,
+      images: newImages,
+    }));
+  
+    }
+  
 
   return (
     <div className="min-h-screen overflow-y-auto bg-black text-white px-6 py-8">
@@ -162,6 +198,53 @@ const RestaurentDetails = () => {
       <Dialog open={openEditForm} onClose={handleCloseEditForm}>
         <DialogTitle>Edit Restaurant Information</DialogTitle>
         <DialogContent>
+
+                <Grid container spacing={2} sx={{marginLeft:'2px'}}>
+                  <Grid className='flex flex-wrap gap-5' item xs={12}>
+                    <input
+                    accept='image/*'
+                    id='fileInput'
+                    style={{display: "none"}}
+                    type="file"
+                    onChange={handleImageChange} />
+          
+          <label className='relative' htmlFor="fileInput">
+          <span className='w-24 h-24 cursor-pointer flex items-center justify-center
+          p-3 border rounded-md border-gray-600'>
+          <AddPhotoAlternate className="■ text-white"/>
+          </span>
+          {
+            uploadImage && 
+              <div className='absolute left-0 right- top-0 bottom-8 w-24 h-24 flex justify-center items-center'> 
+              <CircularProgress/>
+              </div>
+          }
+              </label>
+
+               {/* Display previously uploaded images */}
+        <div className="flex flex-wrap gap-2">
+          {updatedInfo.images.map((image, index) => (
+            <div className="relative" key={index}>
+              <img className="w-24 h-24 object-cover" src={image} alt={`uploaded-${index}`} />
+              <IconButton
+                size="small"
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  outline: 'none',
+                }}
+                onClick={() => handleRemoveImage(index)}
+              >
+                <CloseIcon sx={{ fontSize: '1rem' }} />
+              </IconButton>
+            </div>
+             ))}
+          </div>
+
+                  </Grid>
+                  </Grid>
+          
           <TextField
             label="Restaurant Name"
             variant="outlined"

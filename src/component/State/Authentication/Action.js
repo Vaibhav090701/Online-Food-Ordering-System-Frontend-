@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export const registerUser=(reqData)=>async(dispatch)=>{
     dispatch({type:REGISTER_REQUEST})
-
+    
     try {
         //pass the url of backend api in data and reqdata is a body which contain the userdata from the front end
         const{data}=await api.post(`${API_URL}/auth/signup`,reqData.userData);
@@ -14,18 +14,35 @@ export const registerUser=(reqData)=>async(dispatch)=>{
         if(data.token)localStorage.setItem("jwt", data.token);
 
         //if user is registered as restaurent_owner role then we will navigate  it to admin/restaurent api
-        if(data.role==="ROLE_RESTAURANT_OWNER"){
-            reqData.navigate("/admin/restaurents")
+        if(data.role==="ROLE_ADMIN"){
+            setTimeout(()=>{
+                reqData.navigate("/admin/restaurents")
+            },2000)
         }
         else{
-             reqData.navigate("/");                                       
+            setTimeout(() => {
+                reqData.navigate("/");
+            }, 2000); // Wait for 2 seconds before navigating
         }
         dispatch({type:REGISTER_SUCCESS, payload:data.jwt})
         console.log("registeration success", data);
 
+                              // Trigger success notification
+                              dispatch({
+                                type: SHOW_NOTIFICATION,
+                                payload: { message: 'Registeration successfull!', severity: 'success' }
+                            }); 
+        
+
     } catch (error) {
         dispatch({type:REGISTER_FAILURE, payload:error})
         console.log("error",error);
+
+           // Trigger error notification
+           dispatch({
+            type: SHOW_NOTIFICATION,
+                payload: { message: 'Registeration Failed. Please try again!', severity: 'error' }
+            });
         
     }
 }

@@ -10,13 +10,17 @@ import { useSelector } from 'react-redux';
 import RestaurentCard from './RestaurentCard';
 
 const Dishes = ({ dishes }) => {
-  const {restaurent, auth}=useSelector(store=>store)
+
+  const handleOrderNow=()=>{
+                                                    
+  }
+
   return (
     <section className="py-12 lg:py-16">
 
       <div className="text-center mb-12">
         <Typography variant="h4" component="h2" gutterBottom>
-          Popular Dishes
+          Popular Restaurants
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Delicious meals prepared with love

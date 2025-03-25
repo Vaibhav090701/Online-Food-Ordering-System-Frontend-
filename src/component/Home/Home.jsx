@@ -32,7 +32,6 @@ const Home = () => {
       {/* Hero Section */}
       <HeroSection/>
       <Dishes dishes={dishes}/>
-      <HowItWorks process={process}/>
       <CustomerTestimonials testimonials={testimonials}/>
       <SpecialOffers specialOffers={offers}/>
       <CallToAction/>

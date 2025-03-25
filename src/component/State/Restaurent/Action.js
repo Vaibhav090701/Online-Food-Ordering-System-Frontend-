@@ -1,4 +1,5 @@
 import { api } from "../../config/api";
+import { SHOW_NOTIFICATION } from "../Notification/ActionType";
 import { CREATE_CATEGORY_FAILURE, CREATE_CATEGORY_REQUEST, CREATE_CATEGORY_SUCCESS, CREATE_RESTAURENT_FAILURE, CREATE_RESTAURENT_REQUEST, CREATE_RESTAURENT_SUCCESS, DELETE_RESTAURENT_FAILURE, DELETE_RESTAURENT_REQUEST, DELETE_RESTAURENT_SUCCESS, GET_ALL_RESTAURENTS_FAILURE, GET_ALL_RESTAURENTS_REQUEST, GET_ALL_RESTAURENTS_SUCCESS, GET_RESTAURENTS_CATEGORY_FAILURE, GET_RESTAURENTS_CATEGORY_REQUEST, GET_RESTAURENTS_CATEGORY_SUCCESS, GET_RESTAURENT_BY_ID_FAILURE, GET_RESTAURENT_BY_ID_REQUEST, GET_RESTAURENT_BY_ID_SUCCESS, GET_RESTAURENT_BY_USER_ID_FAILURE, GET_RESTAURENT_BY_USER_ID_REQUEST, GET_RESTAURENT_BY_USER_ID_SUCCESS,UPDATE_RESTAURENT_FAILURE, UPDATE_RESTAURENT_REQUEST, UPDATE_RESTAURENT_STATUS_FAILURE, UPDATE_RESTAURENT_STATUS_REQUEST, UPDATE_RESTAURENT_STATUS_SUCCESS, UPDATE_RESTAURENT_SUCCESS } from "./ActionType"
 
 export const getAllRestaurents=(token)=>{
@@ -77,10 +78,24 @@ export const createRestaurent=(reqData)=>{
 
             console.log("Restaurent created", data);
             dispatch({type:CREATE_RESTAURENT_SUCCESS, payload:data})
+
+               // Trigger success notification
+                                          dispatch({
+                                            type: SHOW_NOTIFICATION,
+                                            payload: { message: 'Restaurant registered successfull!', severity: 'success' }
+                                        }); 
+                    
             
         } catch (error) {
             dispatch({type:CREATE_RESTAURENT_FAILURE, payload:error})
             console.log("error", error);
+
+              // Trigger error notification
+                       dispatch({
+                        type: SHOW_NOTIFICATION,
+                            payload: { message: 'Restaurant registeration Failed. Please try again!', severity: 'error' }
+                        });
+                    
         }
     }
 
@@ -99,10 +114,23 @@ export const updateRestaurantInfo=({restaurentId,jwt,updatedInfo})=>{
 
             console.log("Restaurent details updated", data);
             dispatch({type:UPDATE_RESTAURENT_SUCCESS, payload:data})
+
+                           // Trigger success notification
+                           dispatch({
+                            type: SHOW_NOTIFICATION,
+                            payload: { message: 'Restaurant details updated successfull!', severity: 'success' }
+                        }); 
+
             
         } catch (error) {
             dispatch({type:UPDATE_RESTAURENT_FAILURE, payload:error})
             console.log("error", error);
+
+            // Trigger error notification
+            dispatch({
+                type: SHOW_NOTIFICATION,
+                    payload: { message: 'Restaurant details failed to update. Please try again!', severity: 'error' }
+                });
         }
     }
 }
