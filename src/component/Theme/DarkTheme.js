@@ -1,10 +1,15 @@
 import { createTheme } from "@mui/material";
 
+export const style={
+    background:'linear-gradient(45deg, #FF5722 30%, #FF9800 90%)',
+}
+
 export const darkTheme=createTheme({
     palette:{
         mode:"dark",
         primary:{
-            main:"#e91e63"
+            main:"#FF5722", // Use a solid color for primary
+
         },
         secondary:{
             main:"#5A20CB"

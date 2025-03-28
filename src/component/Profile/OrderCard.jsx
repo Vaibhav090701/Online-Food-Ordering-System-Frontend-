@@ -17,7 +17,7 @@ const OrderCard = ({ order }) => {
             Order #{order.id}
           </Typography>
           <Typography variant="body2" className="text-gray-500">
-            Order Date: {new Date(order.date).toLocaleDateString()}
+            Order Date: {new Date(order.orderDate).toLocaleDateString()}
           </Typography>
           <Typography variant="body2" className={`text-sm ${order.status === 'COMPLETED' ? 'text-green-500' : 'text-yellow-500'}`}>
             Status: {order.status}
