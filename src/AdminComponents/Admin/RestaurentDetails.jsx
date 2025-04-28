@@ -1,10 +1,12 @@
-import { Button, Card, CardContent, CardHeader, Grid, Typography, Box, TextField, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress, IconButton } from '@mui/material';
+import { Button, Card, CardContent, CardHeader, Grid, Typography, Box, TextField, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateRestaurantInfo, updateRestaurentStatus} from '../../component/State/Restaurent/Action';
 import { uploadImageToCloudinary } from '../util/UploadToCloudinary';
 import { AddPhotoAlternate} from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
+import CityAutocomplete from '../CreateRestaurent/CityAutoComplete';
+import { cities, cuisineTypes, style } from '../../util/constants';
 
 
 const RestaurentDetails = () => {
@@ -21,6 +23,8 @@ const RestaurentDetails = () => {
     instagram: restaurent.userRestaurent?.instagram || '',
     description: restaurent.userRestaurent?.description || '',
     images:restaurent.userRestaurent?.images || [],
+    cuisineType:restaurent.userRestaurent?.cuisineType || '',
+    city:restaurent.userRestaurent?.city || '',
   });
 
   const handleRestaurentStatus = () => {
@@ -128,6 +132,11 @@ const RestaurentDetails = () => {
                   <Typography variant="body1" color="textSecondary">Owner:</Typography>
                   <Typography variant="body1">{restaurent.userRestaurent.name}</Typography>
                 </div>
+                <div className="flex justify-between">
+                  <Typography variant="body1" color="textSecondary">Cuisine Type:</Typography>
+                  <Typography variant="body1">{restaurent.userRestaurent.cuisineType}</Typography>
+                </div>
+
 
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Status:</Typography>
@@ -197,7 +206,7 @@ const RestaurentDetails = () => {
       {/* Edit Restaurant Form Dialog */}
       <Dialog open={openEditForm} onClose={handleCloseEditForm}>
         <DialogTitle>Edit Restaurant Information</DialogTitle>
-        <DialogContent>
+        <DialogContent >
 
                 <Grid container spacing={2} sx={{marginLeft:'2px'}}>
                   <Grid className='flex flex-wrap gap-5' item xs={12}>
@@ -263,6 +272,18 @@ const RestaurentDetails = () => {
             value={updatedInfo.address}
             onChange={handleInputChange}
           />
+              <FormControl fullWidth>
+      <InputLabel>City</InputLabel>
+      <Select name='city' value={updatedInfo.city} onChange={handleInputChange} label="City">
+        {cities.map((city, index) => (
+          <MenuItem key={index} value={city}>
+            {city}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+
+
           <TextField
             label="Phone"
             variant="outlined"
@@ -308,6 +329,17 @@ const RestaurentDetails = () => {
             value={updatedInfo.description}
             onChange={handleInputChange}
           />
+      <FormControl fullWidth>
+      <InputLabel>Cuisine Type</InputLabel>
+      <Select name='cuisineType' value={updatedInfo.cuisineType} onChange={handleInputChange} label="City">
+        {cuisineTypes.map((type, index) => (
+          <MenuItem key={index} value={type}>
+            {type}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEditForm} color="secondary">

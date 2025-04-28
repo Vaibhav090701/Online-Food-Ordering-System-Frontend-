@@ -2,15 +2,11 @@ import { api } from "../../config/api";
 import { SHOW_NOTIFICATION } from "../Notification/ActionType";
 import { CREATE_CATEGORY_FAILURE, CREATE_CATEGORY_REQUEST, CREATE_CATEGORY_SUCCESS, CREATE_RESTAURENT_FAILURE, CREATE_RESTAURENT_REQUEST, CREATE_RESTAURENT_SUCCESS, DELETE_RESTAURENT_FAILURE, DELETE_RESTAURENT_REQUEST, DELETE_RESTAURENT_SUCCESS, GET_ALL_RESTAURENTS_FAILURE, GET_ALL_RESTAURENTS_REQUEST, GET_ALL_RESTAURENTS_SUCCESS, GET_RESTAURENTS_CATEGORY_FAILURE, GET_RESTAURENTS_CATEGORY_REQUEST, GET_RESTAURENTS_CATEGORY_SUCCESS, GET_RESTAURENT_BY_ID_FAILURE, GET_RESTAURENT_BY_ID_REQUEST, GET_RESTAURENT_BY_ID_SUCCESS, GET_RESTAURENT_BY_USER_ID_FAILURE, GET_RESTAURENT_BY_USER_ID_REQUEST, GET_RESTAURENT_BY_USER_ID_SUCCESS,UPDATE_RESTAURENT_FAILURE, UPDATE_RESTAURENT_REQUEST, UPDATE_RESTAURENT_STATUS_FAILURE, UPDATE_RESTAURENT_STATUS_REQUEST, UPDATE_RESTAURENT_STATUS_SUCCESS, UPDATE_RESTAURENT_SUCCESS } from "./ActionType"
 
-export const getAllRestaurents=(token)=>{
+export const getAllRestaurents=()=>{
     return async (dispatch)=>{
     dispatch({type:GET_ALL_RESTAURENTS_REQUEST})
     try {
-        const {data}=await api.get("/api/restaurants",{
-            headers:{
-                Authorization:`Bearer ${token}`
-            }
-        });
+        const {data}=await api.get("/api/restaurants");
         dispatch({type:GET_ALL_RESTAURENTS_SUCCESS, payload:data});
         console.log("all restaurents", data);
         
@@ -65,14 +61,15 @@ export const getRestaurentByUserId=(token)=>{
     }
 }
 
-export const createRestaurent=(reqData)=>{
-    console.log("token:- ",reqData.token);
+export const createRestaurent=({reqData,token})=>{
+    console.log("token:- ",token);
     return async(dispatch)=>{
         dispatch({type:CREATE_RESTAURENT_REQUEST})
         try {
-            const {data}=await api.post(`/api/admin/restaurant`, reqData.data,{
+            const {data}=await api.post(`/api/admin/restaurant`, reqData,{
                 headers:{
-                    Authorization:`Bearer ${reqData.token}`,
+                    Authorization:`Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 }
             });
 
@@ -198,25 +195,25 @@ export const createCategory=({reqData,jwt})=>{
     }
 }
 
-export const getRestaurentsCategory=({restaurentId,jwt})=>{
-    return async(dispatch)=>{
-        dispatch({type:GET_RESTAURENTS_CATEGORY_REQUEST})
+// export const getRestaurentsCategory=({restaurentId,jwt})=>{
+//     return async(dispatch)=>{
+//         dispatch({type:GET_RESTAURENTS_CATEGORY_REQUEST})
 
-        try {
-            const res=await api.get(`/api/category/restaurent/${restaurentId}`,{
-                headers:{
-                    Authorization:`Bearer ${jwt}`,
-                }
-            });
-            console.log("get restaurent category", res.data);
-            dispatch({type:GET_RESTAURENTS_CATEGORY_SUCCESS, payload:res.data})
+//         try {
+//             const res=await api.get(`/api/category/restaurent/${restaurentId}`,{
+//                 headers:{
+//                     Authorization:`Bearer ${jwt}`,
+//                 }
+//             });
+//             console.log("get restaurent category", res.data);
+//             dispatch({type:GET_RESTAURENTS_CATEGORY_SUCCESS, payload:res.data})
             
-        } catch (error) {
-            dispatch({type:GET_RESTAURENTS_CATEGORY_FAILURE, payload:error})
-            console.log("error",error);
-        }
-    }
-}
+//         } catch (error) {
+//             dispatch({type:GET_RESTAURENTS_CATEGORY_FAILURE, payload:error})
+//             console.log("error",error);
+//         }
+//     }
+// }
 
 
 

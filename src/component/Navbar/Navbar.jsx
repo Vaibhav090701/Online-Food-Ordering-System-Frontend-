@@ -27,7 +27,9 @@ const Navbar = () => {
 
     }
   return (
-    <Box className='px-5 sticky top-0 z-50 py-[.8rem] lg:px-20 flex justify-between border-transparent' sx={{  background: 'linear-gradient(45deg, #FF5722 30%, #FF9800 90%)',
+    <Box className='fixed px-5 sticky top-0 py-[.8rem] lg:px-20 flex justify-between border-transparent' 
+        sx={{ zIndex: (theme)=> theme.zIndex.drawer+1,
+             background: 'linear-gradient(45deg, #FF5722 30%, #FF9800 90%)',
     }}>
 
             <div className='lg:mr10 cursor-pointer flex items-center space-x-4'>

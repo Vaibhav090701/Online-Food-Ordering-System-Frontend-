@@ -2,25 +2,12 @@ import { Box, Card, CardHeader, IconButton, Modal, Paper, Table, TableBody, Tabl
 import React, { useEffect, useState } from 'react'
 import CreateIcon from '@mui/icons-material/Create';
 import CreateIngredientForm from './CreateIngredientForm';
-import CreateIngredientCategoryForm from './CreateIngredientCategoryForm';
 import { useDispatch, useSelector } from 'react-redux';
 import { getIngredientCategory } from '../../component/State/Ingredients/Action';
+import { style } from '../../util/constants';
 
-const orders=[1,1,1,1,1,1];
 
 const IngredientCategoryTable = () => {
-
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'black',
-    border: '2px solid white',
-    boxShadow: 24,
-    p: 4,
-  };
 
   const dispatch=useDispatch();
   const { restaurent, ingredients } = useSelector(store => store);
@@ -38,7 +25,7 @@ const IngredientCategoryTable = () => {
   },[])  
   
   return (
-    <Box>
+    <Box sx={style}>
         <Card className='mt-1'>
             <CardHeader
             title={"Ingredient Category"}

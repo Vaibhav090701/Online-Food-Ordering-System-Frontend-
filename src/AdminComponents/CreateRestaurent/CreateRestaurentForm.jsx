@@ -1,21 +1,23 @@
 import { AddPhotoAlternate } from '@mui/icons-material';
-import { Button, CircularProgress, Grid, IconButton, TextField } from '@mui/material';
+import { Button, CircularProgress, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { useFormik } from 'formik'
 import CloseIcon from '@mui/icons-material/Close';
 import React, { useState } from 'react'
 import { uploadImageToCloudinary } from '../util/UploadToCloudinary';
 import { useDispatch } from 'react-redux';
 import { createRestaurent } from '../../component/State/Restaurent/Action';
+import CityAutocomplete from './CityAutoComplete';
 
 export const initialValues={
   name:"",
   description:"",
   address:"",
+  city:"",
   phone:"",
   email:"",
   twitter:"",
   instagram:"",
-  status:"",
+  cuisineType:"",
   images:[],
 }
 
@@ -32,17 +34,18 @@ const CreateRestaurentForm = () => {
       const data={
         name:values.name,
         description:values.description,
+        cuisineType:values.cuisineType,
         address:values.address,
+        city:values.city,
         phone:values.phone,
         email:values.email,
         twitter:values.twitter,
         instagram:values.instagram,
-        status:"CLOSED",
         images:values.images,
       };
       console.log("form data",data);
 
-      dispatch(createRestaurent({data, token:jwt}))
+      dispatch(createRestaurent({reqData:data, token:jwt}));
 
     }
   });
@@ -62,7 +65,6 @@ const CreateRestaurentForm = () => {
     const updateImages=[...formik.values.images];
     updateImages.splice(index,1);
     formik.setFieldValue("images", updateImages)
-
 
   }
   return (
@@ -139,6 +141,26 @@ p-3 border rounded-md border-gray-600'>
           />
         </Grid>
 
+        <Grid xs={12}>
+  <FormControl fullWidth>
+    <InputLabel id="cuisine-type-label">Cuisine Type</InputLabel>
+    <Select
+      labelId="cuisine-type-label"
+      id="cuisineType"
+      name="cuisineType"
+      value={formik.values.cuisineType}
+      label="Cuisine Type"
+      onChange={formik.handleChange}
+    >
+      <MenuItem value="Indian">Indian</MenuItem>
+      <MenuItem value="Chinese">Chinese</MenuItem>
+      <MenuItem value="Italian">Italian</MenuItem>
+      <MenuItem value="Mexican">Mexican</MenuItem>
+      <MenuItem value="Thai">Thai</MenuItem>
+    </Select>
+  </FormControl>
+</Grid>
+
 
         <Grid xs={12}>
           <TextField fullWidth
@@ -149,6 +171,10 @@ p-3 border rounded-md border-gray-600'>
           onChange={formik.handleChange}
           value={formik.values.address}
           />
+        </Grid>
+
+        <Grid xs={12}>
+          <CityAutocomplete formik={formik} />
         </Grid>
 
 

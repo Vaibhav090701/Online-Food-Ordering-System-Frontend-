@@ -1,5 +1,6 @@
 import { api } from "../../config/api";
-import { CREATE_INGREDIENT_CATEGORY_FAILURE, CREATE_INGREDIENT_CATEGORY_REQUEST, CREATE_INGREDIENT_CATEGORY_SUCCESS, CREATE_INGREDIENT_FAILURE, CREATE_INGREDIENT_REQUEST, CREATE_INGREDIENT_SUCCESS, GET_INGREDIENTS, GET_INGREDIENT_CATEGORY_FAILURE, GET_INGREDIENT_CATEGORY_REQUEST, GET_INGREDIENT_CATEGORY_SUCCESS, UPDATE_STOCK } from "./ActionTypes";
+import { SHOW_NOTIFICATION } from "../Notification/ActionType";
+import { CREATE_INGREDIENT_CATEGORY_FAILURE, CREATE_INGREDIENT_CATEGORY_REQUEST, CREATE_INGREDIENT_CATEGORY_SUCCESS, CREATE_INGREDIENT_FAILURE, CREATE_INGREDIENT_REQUEST, CREATE_INGREDIENT_SUCCESS, GET_ALL_PRE_DEFINE_INGREDIENT_FAILURE, GET_ALL_PRE_DEFINE_INGREDIENT_REQUEST, GET_ALL_PRE_DEFINE_INGREDIENT_SUCCESS, GET_INGREDIENTS, GET_INGREDIENT_CATEGORY_FAILURE, GET_INGREDIENT_CATEGORY_REQUEST, GET_INGREDIENT_CATEGORY_SUCCESS, UPDATE_INGREDIENT_FAILURE, UPDATE_INGREDIENT_REQUEST, UPDATE_INGREDIENT_SUCCESS, UPDATE_STOCK } from "./ActionTypes";
 
 export const getIngredientsOfRestaurent=(jwt)=>{
     return async(dispatch)=>{
@@ -29,12 +30,22 @@ export const createIngredient=({reqData,jwt})=>{
                     Authorization:`Bearer ${jwt}`
                 },
             });
-            console.log("category created", data);
+            console.log("Ingredient created", data);
             dispatch({type:CREATE_INGREDIENT_SUCCESS, payload:data})
+            dispatch({type:SHOW_NOTIFICATION,
+                payload:{message:"Ingredient created successfully", severity: 'success'}
+            })
+
             
         } catch (error) {
             dispatch({type:CREATE_INGREDIENT_FAILURE, payload:error})
             console.log("error", error);
+            dispatch({
+                type: SHOW_NOTIFICATION,
+                    payload: { message: 'Failed to create ingredient', severity: 'error' }
+                });    
+
+
         }
     }
 }
@@ -96,5 +107,54 @@ export const updateStockOfIngredient=({id,jwt})=>{
         }
     }
 }
+
+export const updateIngredientDetails=({id,jwt,reqData})=>{
+    return async(dispatch)=>{
+        dispatch({type:UPDATE_INGREDIENT_REQUEST})
+
+        try {
+            const {data}=await api.put(`/api/admin/ingredients/${id}`,reqData,{
+                headers:{
+                    Authorization:`Bearer ${jwt}`   
+                },
+            });
+            console.log("ingredient details updated", data);
+            dispatch({type:UPDATE_INGREDIENT_SUCCESS, payload:data})
+            dispatch({type:SHOW_NOTIFICATION,
+                payload:{message:"Ingredient updated successfully", severity: 'success'}
+            })
+            
+        } catch (error) {
+            console.log("error", error);
+            dispatch({type:UPDATE_INGREDIENT_FAILURE, payload:error})
+               // Trigger error notification
+        dispatch({
+            type: SHOW_NOTIFICATION,
+                payload: { message: 'Failed to update ingredient', severity: 'error' }
+            });
+        }
+    }
+}
+
+export const getAllPreDefineIngredients=(jwt)=>{
+    return async(dispatch)=>{
+        dispatch({type:GET_ALL_PRE_DEFINE_INGREDIENT_REQUEST})
+        try {
+            const {data}=await api.get(`/api/admin/preDefineIngredient`,{
+                headers:{
+                    Authorization:`Bearer ${jwt}`
+                },
+            });
+            dispatch({type:GET_ALL_PRE_DEFINE_INGREDIENT_SUCCESS, payload:data})
+            console.log("PreDefineIngredients", data);
+            
+        } catch (error) {
+            console.log("error",error);
+            dispatch({type:GET_ALL_PRE_DEFINE_INGREDIENT_FAILURE, payload:error});
+            
+        }
+    }
+}
+
 
 

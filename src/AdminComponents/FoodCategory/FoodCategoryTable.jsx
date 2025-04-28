@@ -4,8 +4,6 @@ import CreateIcon from '@mui/icons-material/Create';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateFoodCategoryForm from './CreateFoodCategoryForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { getRestaurentsCategory } from '../../component/State/Restaurent/Action';
-import { getRestaurentOrders } from '../../component/State/Admin/Restaurent Orders/Action';
 
 const orders=[1,1,1,1,1,1];
 
@@ -31,7 +29,7 @@ const FoodCategoryTable = () => {
   console.log("Restaurent Details", restaurent);
 
     useEffect(()=>{
-      dispatch(getRestaurentsCategory({restaurentId:restaurent.userRestaurent?.id, jwt}))
+      // dispatch(getRestaurentsCategory({restaurentId:restaurent.userRestaurent?.id, jwt}))
   
     },[])
 

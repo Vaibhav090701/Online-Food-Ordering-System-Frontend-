@@ -53,7 +53,7 @@ const ProfileNavigation = ({ handleClose, isOpen }) => {
             variant={isSmallScreen ? "temporary" : "permanent"}
         >
         
-        <div className='w-[70vw] lg:w-[21.5vw] h-screen flex flex-col justify-center text-xl space-y-[1.5rem] bg-black mt-17'>
+        <div className='w-[70vw] lg:w-[21.5vw] h-screen flex flex-col justify-center text-xl space-y-[1.5rem] bg-black mt-5'>
         {
                     menu.map((item,i)=><>
                     <React.Fragment key={i}>

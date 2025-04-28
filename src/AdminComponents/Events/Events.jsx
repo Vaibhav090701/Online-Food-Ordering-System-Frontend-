@@ -1,10 +1,12 @@
-import { Box, Button, Grid, Modal, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Avatar } from '@mui/material';
+import { Box, Button, Grid, Modal, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Avatar, GlobalStyles } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import React, { useEffect, useState } from 'react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import { createEvent, getRestaurentsEvents, deleteEvents } from '../../component/State/Event/Action';
 import dayjs from 'dayjs';
+import { style } from '../../util/constants';
+
 
 const Events = () => {
   const initialValues = {
@@ -15,17 +17,6 @@ const Events = () => {
     endDate: null,
   };
 
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: '#333333',
-    border: '2px solid white',
-    boxShadow: 24,
-    p: 4,
-  };
 
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -161,7 +152,7 @@ const Events = () => {
 
       {/* Modal for Creating/Editing Events */}
       <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-        <Box sx={{ ...style, width: 400 }}>
+        <Box sx={style}>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -219,7 +210,7 @@ const Events = () => {
                     value={formValues.endDate}
                     onChange={(newValue) => handleDateChange(newValue, 'endDate')}
                     inputFormat="MM-DD-YYYY hh:mm A"
-                    sx={{ width: '100%' }}
+                    sx={{ width: '100%', backgroundColor: 'white', color:'black' }}
                   />
                 </LocalizationProvider>
               </Grid>

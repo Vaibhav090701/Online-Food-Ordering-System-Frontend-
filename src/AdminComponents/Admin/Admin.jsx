@@ -10,12 +10,14 @@ import Events from '../Events/Events';
 import RestaurentDetails from './RestaurentDetails';
 import CreateMenuForm from '../Menu/CreateMenuForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { getRestaurentById, getRestaurentsCategory } from '../../component/State/Restaurent/Action';
 import { getMenuItemByRestaurentId } from '../../component/State/Menu/Action';
 import { getUserOrders } from '../../component/State/Order/Action';
 import { getRestaurentOrders } from '../../component/State/Admin/Restaurent Orders/Action';
 import { IconButton, useMediaQuery } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import CategoryGrid from '../Menu/MenuCategory/CategoryGrid';
+import PredefinedMenuList from '../Menu/PreDefineMenuList';
+import CreateIngredientForm from '../Ingredients/CreateIngredientForm';
 
 const Admin = () => {
     const dispatch = useDispatch();
@@ -25,7 +27,6 @@ const Admin = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);
 
     useEffect(() => {
-        dispatch(getRestaurentsCategory({ restaurentId: restaurent.userRestaurent?.id, jwt }));
         dispatch(getRestaurentOrders({
             restaurentId: restaurent.userRestaurent.id,
             orderStatus: "pending",
@@ -70,7 +71,10 @@ const Admin = () => {
                         <Route path='/ingredients' element={<Ingredients />} />
                         <Route path='/events' element={<Events />} />
                         <Route path='/details' element={<RestaurentDetails />} />
-                        <Route path='/add-menu' element={<CreateMenuForm />} />
+                        <Route path='/menu/categories' element={<CategoryGrid/>} />
+                        <Route path='/menu-form' element={<CreateMenuForm/>}/>
+                        <Route path='/categories/:id/menu-item' element={<PredefinedMenuList/>}></Route>
+                        <Route path='/ingredients/create' element={<CreateIngredientForm/>}></Route>
                     </Routes>
                 </div>
             </div>

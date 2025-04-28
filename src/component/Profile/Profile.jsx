@@ -46,7 +46,7 @@ const Profile = () => {
             >
                 {/* Toggle Button for Small Screens */}
                 {isSmallScreen && (
-                    <IconButton onClick={toggleSidebar} sx={{ position: 'fixed', top: 10, left: 10, zIndex: 1200 }}>
+                    <IconButton onClick={toggleSidebar} sx={{ position: 'fixed', top: 10, left: 10, zIndex: 1201 }}>
                         <MenuIcon />
                     </IconButton>
                 )}

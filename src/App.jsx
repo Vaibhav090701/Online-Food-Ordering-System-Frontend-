@@ -7,6 +7,7 @@ import { getUser } from './component/State/Authentication/Action';
 import { findCart } from './component/State/Cart/Action';
 import Routers from './Routers/Routers';
 import {getAllRestaurents, getRestaurentByUserId } from './component/State/Restaurent/Action';
+import NotificationSnackbar from './util/NotificationSnackBar';
 
 function App() {
 
@@ -26,7 +27,7 @@ function App() {
   },[auth.jwt]);
 
   useEffect(()=>{
-    dispatch(getAllRestaurents(jwt)); 
+    dispatch(getAllRestaurents()); 
     if(auth.jwt || jwt)
     {
     dispatch(getRestaurentByUserId(auth.jwt || jwt))
@@ -37,6 +38,7 @@ function App() {
   return (
 
     <ThemeProvider theme={darkTheme}>
+      <NotificationSnackbar/>
         <CssBaseline></CssBaseline>
       <Routers/>
 

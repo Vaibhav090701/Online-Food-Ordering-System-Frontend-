@@ -2,6 +2,7 @@ import { ADD_TO_FAVOURITE_FAILURE, ADD_TO_FAVOURITE_REQUEST, ADD_TO_FAVOURITE_SU
 import { API_URL, api } from "../../config/api";
 import { SHOW_NOTIFICATION } from "../Notification/ActionType";
 import { useNavigate } from "react-router-dom";
+import { showNotification } from "../Notification/Action";
 
 export const registerUser=(reqData)=>async(dispatch)=>{
     dispatch({type:REGISTER_REQUEST})
@@ -69,7 +70,7 @@ export const loginUser=(reqData)=>async(dispatch)=>{
                 reqData.navigate("/");
             }, 2000); // Wait for 2 seconds before navigating
                 }
-        dispatch({type:LOGIN_SUCCESS, payload:data.jwt})
+        dispatch({type:LOGIN_SUCCESS, payload:data.token})
         console.log("login success",data);
 
                       // Trigger success notification
@@ -108,6 +109,18 @@ export const getUser=(jwt)=>async(dispatch)=>{
 
     } catch (error) {
         dispatch({type:GET_USER_FAILURE, payload:error})
+            // if token expired
+    if (error.response?.status === 401 && error.response.data?.error === "Token expired") {
+        // clear jwt
+        localStorage.removeItem("jwt");
+  
+        // show notification
+        dispatch(showNotification("Session expired. Please log in again.", "warning"));
+  
+        // redirect (Note: you can't use navigate directly here outside of component)
+        window.location.href = "/account/login"; // or pass navigate from App.jsx if needed
+      }
+  
         console.log("error",error);
     }
 }

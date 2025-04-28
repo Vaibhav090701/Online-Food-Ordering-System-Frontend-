@@ -17,7 +17,7 @@ const MenuTable = () => {
   const navigate=useNavigate();
 
   const handleNavigate=()=>{
-    navigate('/admin/restaurents/add-menu')
+    navigate('/admin/restaurents/menu/categories')
 
   }
  
@@ -88,9 +88,14 @@ const MenuTable = () => {
                 </TableCell>
               <TableCell align="right">₹{row.price}</TableCell>
               <TableCell align="right">
-                <Button onClick={()=>handleAvailability(row.id)} >
-                {row.available?"in_stock":"out_of_stock"}
-                </Button>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    color={row.available ? "success" : "error"}
+                    onClick={() => handleAvailability(item.id)}
+                  >
+                    {row.available? "In Stock" : "Out of Stock"}
+                  </Button>
                 </TableCell>
               <TableCell align="right">
                 <Button onClick={()=>handleDelete(row.id)}>

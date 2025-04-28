@@ -78,7 +78,7 @@ const CartItem = ({item}) => {
         <div className='pt-3 space-x-2'>
 
             {item.ingredients?.length > 0 && item.ingredients ? (
-                ingredients.map((ingredient, index)=> <Chip key={index} label={ingredient}/>))
+                item.ingredients.map((ingredient, index)=> <Chip key={index} label={ingredient}/>))
             :(
                 <p className="text-gray-500">No ingredients selected</p> // Message when no ingredients
               )}

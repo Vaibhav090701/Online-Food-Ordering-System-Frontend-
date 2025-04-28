@@ -2,16 +2,13 @@ import React, { useEffect, useState } from 'react'
 import CartItem from './CartItem'
 import { Box, Button, Card, Divider, Grid, Modal, TextField } from '@mui/material'
 import AddressCart from './AddressCart';
-import HomeIcon from '@mui/icons-material/Home';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import { ErrorMessage, Field, Form, Formik, validateYupSchema } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { createOrder } from '../State/Order/Action';
 import { findCart } from '../State/Cart/Action';
-import { noop } from 'framer-motion';
 import { createAddress, getUsersAddress } from '../State/Address/Action';
 import NotificationSnackbar from '../../util/NotificationSnackBar';
-import { showNotification } from '../State/Notification/Action';
 import { useNavigate } from 'react-router-dom';
 
 // write this manually but not working so comment it out
@@ -27,6 +24,7 @@ export const style = {
   outline:"none",
   boxShadow: 24,
   p: 4,
+  borderRadius: 2, // ✅ Added border radius (2 = 16px by default in MUI)
   // Typography Color
   '& .MuiTypography-root': {
     color: '#000', // Set default text color for all Typography components inside Box
@@ -73,25 +71,34 @@ const initialValues={
   isDefault:true
 }
 
-const Cart = () => {
-
-  const jwt=localStorage.getItem("jwt");
-
-  const handleOpenAddressModel=()=> setOpen(true);
+const Cart = () => {  
 
   const [open, setOpen] = React.useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
+  const jwt=localStorage.getItem("jwt");
 
-  const handleClose = () => setOpen(false);
-
-  const {restaurent,cart, address}=useSelector((store)=>store)
+  const {auth,cart, address}=useSelector((store)=>store)
   const dispatch=useDispatch();
+  const navigate = useNavigate(); // Initialize navigate
+
 
   useEffect(()=>{
     dispatch(findCart(jwt));
     dispatch(getUsersAddress(jwt));
     
 },[jwt])
+
+const handleOpenAddressModel=()=>{
+
+  if(auth.jwt){
+    setOpen(true);
+  }
+  else{
+    navigate("/account/login");
+  }
+} 
+
+const handleClose = () => setOpen(false);
 
 
   const handleSubmit=(values)=>{
@@ -117,7 +124,6 @@ const Cart = () => {
   }, [selectedAddress]);
 
   console.log("Cart Items", cart.cartItems);
-  const navigate = useNavigate(); // Initialize navigate
   
 
   const handlePlaceOrder=()=>{

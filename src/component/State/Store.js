@@ -10,6 +10,7 @@ import {restaurentReducer} from "./Restaurent/Reducer";
 import { eventReducer } from "./Event/Reducer";
 import { addressReducer } from "./Address/Reducer";
 import notificationReducer from "./Notification/Reducer";
+import { menuCategoryReducer } from "./MenuCategory/Reducer";
 
 const rootereducer=combineReducers({
     auth:authReducer,
@@ -22,6 +23,7 @@ const rootereducer=combineReducers({
     event:eventReducer,
     address:addressReducer,
     notification:notificationReducer,
+    menuCategory:menuCategoryReducer,
 })
 
 //here we create store by using redux 
