@@ -74,6 +74,8 @@ const LoginForm = () => {
     />
   )}
 </Field>
+      <Button onClick={()=>navigate("/forget-password")}>Forget password</Button>
+
 
                 <Button sx={{mt:2,padding:"1rem"}} type='submit' fullWidth variant='contained'>Login</Button>
 

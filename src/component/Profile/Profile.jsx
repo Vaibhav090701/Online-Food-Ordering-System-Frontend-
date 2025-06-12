@@ -1,75 +1,62 @@
-import React, { useState } from 'react'
-import ProfileNavigation from './ProfileNavigation'
-import { Route, Routes } from 'react-router-dom'
-import Orders from './Orders'
-import UserProfile from './UserProfile'
-import Address from './Address'
-import Payment from './Payment'
-import Notification from './Notification'
-import Event from './Event'
-import Logout from './Logout'
-import Favourites from './Favourites'
-
-import { IconButton, useMediaQuery } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-
+import React from 'react';
+import { Box, useMediaQuery } from '@mui/material';
+import { Route, Routes } from 'react-router-dom';
+import ProfileNavigation from './ProfileNavigation';
+import UserProfile from './UserProfile';
+import Orders from './Orders';
+import Favourites from './Favourites';
+import Event from './Event';
+import Setting from './Setting';
+import ProfileSettingsPage from './Settings/ProfilePage';
+import ResetPassword from '../Verify/ResetPassword';
+import SecuritySettingsPage from './Settings/Security';
+import NotificationsSettingsPage from './Settings/NotificationPage';
+import HelpSupportPage from './Settings/Help&Support';
+import PrivacyPolicyPage from './Settings/PrivacyPolicy';
+import TermsConditionsPage from './Settings/Terms&Conditions';
 
 const Profile = () => {
-
-    const isSmallScreen = useMediaQuery("(max-width:1080px)");
-    const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);
-
-
-    const openSideBar=()=>{
-        
-    }
-
-    const handleClose = () => {
-        setIsSidebarOpen(false);
-    };
-
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
-
+  const isSmallScreen = useMediaQuery('(max-width:1080px)');
 
   return (
-        <div className='flex'>
+    <Box
+      sx={{
+        display: 'flex',
+        minHeight: '100vh',
+        width: '100%',
+        overflowX: 'hidden',
+        bgcolor: '#000000',
+        background: 'linear-gradient(180deg, #1f2937 0%, #000000 100%)',
+      }}
+    >
+      <ProfileNavigation />
 
-            <ProfileNavigation handleClose={handleClose} isOpen={isSidebarOpen}/>
+      <Box
+        sx={{
+          flex: 1,
+          width: '100%',
+          ml: { xs: 0, lg: '5px' }, // Sidebar width on desktop
+          pb: { xs: '76px', lg: 0 }, // Bottom navigation padding on mobile
+          overflowX: 'hidden',
+        }}
+      >
+        <Routes>
+          <Route path="/" element={<UserProfile />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/favourites" element={<Favourites />} />
+          <Route path="/event" element={<Event />} />
+          <Route path="/setting" element={<Setting />} />
+          <Route path="/setting/profile" element={<ProfileSettingsPage />} />
+          <Route path="/setting/security" element={<SecuritySettingsPage/>}></Route>
+          <Route path="/setting/notification" element={<NotificationsSettingsPage/>}></Route>
+          <Route path="/setting/help-and-support" element={<HelpSupportPage/>}></Route>
+          <Route path="/setting/privacy-policy" element={<PrivacyPolicyPage/>}></Route>
+          <Route path="/setting/terms-and-conditions" element={<TermsConditionsPage/>}></Route>
 
-        <div
-                className='flex-1 transition-all duration-300'
-                style={{
-                    marginLeft: isSmallScreen ? 0 : isSidebarOpen ? '20vw' : 0,
-                }}
-            >
-                {/* Toggle Button for Small Screens */}
-                {isSmallScreen && (
-                    <IconButton onClick={toggleSidebar} sx={{ position: 'fixed', top: 10, left: 10, zIndex: 1201 }}>
-                        <MenuIcon />
-                    </IconButton>
-                )}
+        </Routes>
+      </Box>
+    </Box>
+  );
+};
 
-            <div className='p-4'>
-
-            {/* //this routing is only for its particular functionality, after my-profile these following urls will active */}            
-            <Routes>
-                <Route path='/' element={<UserProfile/>}></Route>
-                <Route path='/orders' element={<Orders/>}></Route>
-                <Route path='/favourites' element={<Favourites/>}></Route>
-                <Route path='/address' element={<Address/>}></Route>
-                <Route path='/payment' element={<Payment/>}></Route>
-                <Route path='/notification' element={<Notification/>}></Route>
-                <Route path='/event' element={<Event/>}></Route>
-                {/* <Route path='/logout' element={<Logout/>}></Route> */}
-            </Routes>
-
-        </div>
-        </div>
-        </div>
-
-  )
-}
-
-export default Profile
+export default Profile;

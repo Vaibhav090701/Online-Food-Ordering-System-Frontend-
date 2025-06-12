@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import { useDispatch } from 'react-redux';
-import { updateIngredientDetails } from '../../component/State/Ingredients/Action';
+import {updateIngredient} from '../../component/State/Ingredients/Action'
 
 const UpdateIngredientForm = ({ ingredient, handleClose }) => {
   const dispatch = useDispatch();
@@ -23,7 +23,7 @@ const UpdateIngredientForm = ({ ingredient, handleClose }) => {
         quantityInStock: values.quantityInStock,
       };
 
-      dispatch(updateIngredientDetails({id,jwt, reqData:updatedData}));
+      dispatch(updateIngredient({id, reqData:updatedData}));
       handleClose(); // Close modal after update
     },
   });

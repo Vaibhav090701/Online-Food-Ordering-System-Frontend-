@@ -1,9 +1,9 @@
 import { Box, Modal } from '@mui/material'
 import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { style } from '../Cart/Cart';
 import RegisterForm from './RegisterForm';
 import LoginForm from './LoginForm';
+import { style } from '../../util/constants';
 
 const Auth = () => {
 

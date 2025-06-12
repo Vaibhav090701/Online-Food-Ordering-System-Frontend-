@@ -14,39 +14,61 @@ import {
   Radio,
   RadioGroup,
   Typography,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import MenuIcon from '@mui/icons-material/Menu';
-import React, { useEffect, useState } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import MenuCard from './MenuCard';
 import { getRestaurentById } from '../State/Restaurent/Action';
-import { getMenuItemByRestaurentId } from '../State/Menu/Action';
+import { getMenuItemByRestaurantId, getRestaurentMenu } from '../State/Menu/Action';
 
 const RestaurentDetails = () => {
   const [foodType, setFoodType] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); // New state for search
   const { id } = useParams();
   const dispatch = useDispatch();
   const { restaurent, menu } = useSelector((store) => store);
-  const jwt = localStorage.getItem('jwt');
 
   // Fetch restaurant and menu data
   useEffect(() => {
-    dispatch(getRestaurentById({ restaurentId: id, jwt }));
-    dispatch(getMenuItemByRestaurentId({ restaurentId: id, jwt }));
-  }, [dispatch, id, jwt, foodType]);
+    dispatch(getRestaurentById({ restaurentId: id }));
+    dispatch(getRestaurentMenu({ id: id }));
+  }, [dispatch, id]);
 
-  // Filter menu items based on foodType
-  const filteredMenuItems = menu.menuItems.filter((item) => {
-    if (foodType === 'all') return true;
-    if (foodType === 'vegetarian') return item.vegetarian === true;
-    if (foodType === 'non-vegetarian') return item.vegetarian === false;
-    return true;
-  });
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Filter menu items based on foodType and searchQuery
+  const filteredMenuItems = useMemo(() => {
+    let items = menu.menuItems || [];
+
+    // Apply foodType filter
+    items = items.filter((item) => {
+      if (foodType === 'all') return true;
+      if (foodType === 'vegetarian') return item.vegetarian === true;
+      if (foodType === 'non-vegetarian') return item.vegetarian === false;
+      return true;
+    });
+
+    // Apply search filter
+    if (searchQuery) {
+      items = items.filter((item) =>
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    return items;
+  }, [menu.menuItems, foodType, searchQuery]);
 
   const foodTypes = [
     { label: 'All', value: 'all' },
@@ -116,10 +138,6 @@ const RestaurentDetails = () => {
                 transition: 'opacity 0.3s',
               }}
               onLoad={() => setImageLoaded(true)}
-              onError={(e) => {
-                e.target.src = placeholderImage;
-                setImageLoaded(true);
-              }}
             />
             {/* Secondary Thumbnail (if available) */}
             {restaurent.restaurent?.images?.[1] && (
@@ -239,23 +257,61 @@ const RestaurentDetails = () => {
                       label={<Typography sx={{ color: '#ffffff' }}>{item.label}</Typography>}
                     />
                   ))}
-                </RadioGroup>
-              </FormControl>
-              <Button
-                onClick={toggleFilterDrawer}
-                sx={{ mt: 2, color: '#f97316', '&:hover': { bgcolor: '#1f2937' } }}
-              >
-                Close
-              </Button>
-            </Box>
-          </Drawer>
+              </RadioGroup>
+            </FormControl>
+            <Button
+              onClick={toggleFilterDrawer}
+              sx={{ mt: 2, color: '#f97316', '&:hover': { bgcolor: '#1f2937' } }}
+            >
+              Close
+            </Button>
+          </Box>
+        </Drawer>
         </Box>
 
         {/* Menu Section */}
         <Box sx={{ width: { xs: '100%', lg: '80%' } }}>
-          <Typography variant="h4" sx={{ color: '#ffffff', mb: 3, fontWeight: 'bold' }}>
-            Menu
-          </Typography>
+          <Fade in={true} timeout={500}>
+            <Box>
+              <Typography variant="h4" sx={{ color: '#ffffff', mb: 2, fontWeight: 'bold' }}>
+                Menu
+              </Typography>
+              {/* Search Bar */}
+              <TextField
+                placeholder="Search menu items..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: '#9ca3af' }} />
+                    </InputAdornment>
+                  ),
+                  style: { color: '#ffffff', fontSize: { xs: '0.875rem', sm: '1rem' } },
+                }}
+                sx={{
+                  mb: 3,
+                  '& .MuiInputBase-root': {
+                    bgcolor: '#1f2937',
+                    borderRadius: '8px',
+                    height: '40px',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#d4a017',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#f97316',
+                  },
+                  '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#f97316',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+                aria-label="Search menu items"
+              />
+            </Box>
+          </Fade>
           {menu.loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
               <CircularProgress sx={{ color: '#f97316' }} />
@@ -270,7 +326,7 @@ const RestaurentDetails = () => {
             </Grid>
           ) : (
             <Typography variant="body1" sx={{ color: '#9ca3af' }}>
-              No menu items found for the selected filter.
+              {searchQuery ? 'No menu items match your search.' : 'No menu items found for the selected filter.'}
             </Typography>
           )}
         </Box>

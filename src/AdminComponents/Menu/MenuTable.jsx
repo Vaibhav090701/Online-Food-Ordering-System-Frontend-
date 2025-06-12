@@ -4,38 +4,38 @@ import CreateIcon from '@mui/icons-material/Create';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteMenuItem, getMenuItemByRestaurentId, getRestaurentMenu, updateMenuItemsAvailability } from '../../component/State/Menu/Action';
-import { restaurentOrderReducer } from '../../component/State/Admin/Restaurent Orders/Reducer';
+import { deleteMenuItem, getMenuItemByRestaurantId, updateMenuItemsAvailability } from '../../component/State/Menu/Action';
 
 const MenuTable = () => {
 
   const dispatch=useDispatch();
   const {restaurent, menu}=useSelector(store => store)
+  const { menuItems, ingredients, loading, error } = useSelector(state => state.menu);
   const jwt=localStorage.getItem("jwt");
   const restaurentId=restaurent.userRestaurent.id;
 
   const navigate=useNavigate();
 
   const handleNavigate=()=>{
-    navigate('/admin/restaurents/menu/categories')
+    navigate('/admin/restaurants/menu/categories')
 
   }
  
   const handleAvailability=(id)=>{
-    dispatch(updateMenuItemsAvailability({foodId:id, jwt}))
+    dispatch(updateMenuItemsAvailability({foodId:id, restaurantId:restaurentId}))
   }
 
   const handleDelete=(id)=>{
-    dispatch(deleteMenuItem({foodId:id, jwt}))  
+    dispatch(deleteMenuItem({ id, restaurentId }))
     .then(() => {
       // After deletion, fetch the updated menu
-      dispatch(getRestaurentMenu({ id: restaurentId, jwt }));
+      dispatch(getMenuItemByRestaurantId({restaurantId:restaurentId }));
     })
 
   }
 
   useEffect(()=>{
-    dispatch(getRestaurentMenu({id:restaurentId, jwt}))
+      dispatch(getMenuItemByRestaurantId({restaurantId:restaurentId}));
   },[])
 
   console.log("Menu", menu.menuItems);
@@ -43,6 +43,8 @@ const MenuTable = () => {
 
   return (
     <Box>
+      {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
         <Card className='mt-1'>
             <CardHeader
             title={"Menu"}
@@ -76,7 +78,7 @@ const MenuTable = () => {
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                <Avatar src={row.images[0]}></Avatar>
+                <Avatar src={Array.isArray(row.images) && row.images.length > 0 ? row.images[0] : ''}></Avatar>
               </TableCell>
               <TableCell align="right">
               {row.name}
@@ -92,7 +94,7 @@ const MenuTable = () => {
                     variant="outlined"
                     size="small"
                     color={row.available ? "success" : "error"}
-                    onClick={() => handleAvailability(item.id)}
+                    onClick={() => handleAvailability(row.id)}
                   >
                     {row.available? "In Stock" : "Out of Stock"}
                   </Button>

@@ -24,6 +24,7 @@ const rootereducer=combineReducers({
     address:addressReducer,
     notification:notificationReducer,
     menuCategory:menuCategoryReducer,
+
 })
 
 //here we create store by using redux 

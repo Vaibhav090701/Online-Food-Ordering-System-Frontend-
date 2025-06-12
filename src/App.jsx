@@ -21,16 +21,16 @@ function App() {
   useEffect(()=>{
 
     //whenever RegisterSuccess or LoginSuccess is done, we have jwt token inside our store, so thats why we use that jwt also or get from localstorage also
-    dispatch(getUser(auth.jwt || jwt))
-    dispatch(findCart(jwt));
+    dispatch(getUser());
+    dispatch(findCart());
 
   },[auth.jwt]);
 
   useEffect(()=>{
     dispatch(getAllRestaurents()); 
-    if(auth.jwt || jwt)
+    if(auth.user)
     {
-    dispatch(getRestaurentByUserId(auth.jwt || jwt))
+    dispatch(getRestaurentByUserId())
     }
   },[auth.user]);
 

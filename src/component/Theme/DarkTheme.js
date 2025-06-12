@@ -10,7 +10,7 @@ export const darkTheme=createTheme({
         primary:{
             main:"#FF5722", // Use a solid color for primary
 
-        },
+        },  
         secondary:{
             main:"#5A20CB"
         },

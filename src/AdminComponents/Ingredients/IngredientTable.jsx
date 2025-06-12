@@ -19,9 +19,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateIngredientForm from './CreateIngredientForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { getIngredientsOfRestaurent} from '../../component/State/Ingredients/Action';
+import { getAllIngredients} from '../../component/State/Ingredients/Action';
 import { style } from '../../util/constants';
 import UpdateIngredientForm from './UpdateIngredientForm';
+import { updateIngredientStock } from '../../component/State/Menu/Action';
 
 const IngredientTable = () => {
   const dispatch = useDispatch();
@@ -41,12 +42,16 @@ const IngredientTable = () => {
 
 
   useEffect(() => {
-    dispatch(getIngredientsOfRestaurent(jwt));
+    dispatch(getAllIngredients());
   }, []);
 
-  const handleUpdateStock = (id) => {
-    dispatch(updateStockOfIngredient({ id, jwt }));
-  };
+  // const handleUpdateStock = (id) => {  
+  //   dispatch(updateStockOfIngredient({id}));
+  // };
+
+  const handleUpdateStock = (ingredientId) => {
+        dispatch(updateIngredientStock({ ingredientId, quantity: 100 }));
+    };
 
   const handleEditIngredient = (ingredient) => {
     setSelectedIngredient(ingredient);

@@ -3,48 +3,84 @@ import { API_URL, api } from "../../config/api";
 import { SHOW_NOTIFICATION } from "../Notification/ActionType";
 import { useNavigate } from "react-router-dom";
 import { showNotification } from "../Notification/Action";
+import { toast } from 'react-toastify';
+
 
 export const registerUser=(reqData)=>async(dispatch)=>{
     dispatch({type:REGISTER_REQUEST})
     
     try {
-        //pass the url of backend api in data and reqdata is a body which contain the userdata from the front end
-        const{data}=await api.post(`${API_URL}/auth/signup`,reqData.userData);
+        // Make API call to the signup endpoint
+        const response = await api.post(`/signup`, reqData.userData);
 
-        //store the jwt token which receive from backend in localstorage of system
-        if(data.token)localStorage.setItem("jwt", data.token);
+        // Extract ApiResponse fields
+        const { success, data, message, status } = response.data;
 
-        //if user is registered as restaurent_owner role then we will navigate  it to admin/restaurent api
-        if(data.role==="ROLE_ADMIN"){
-            setTimeout(()=>{
-                reqData.navigate("/admin/restaurents")
-            },2000)
-        }
-        else{
-            setTimeout(() => {
-                reqData.navigate("/");
-            }, 2000); // Wait for 2 seconds before navigating
-        }
-        dispatch({type:REGISTER_SUCCESS, payload:data.jwt})
+        if(success){
+            dispatch({
+                type:REGISTER_SUCCESS,
+                payload:data
+            })
         console.log("registeration success", data);
+        // Trigger success notification with backend message
+            dispatch({
+                type: SHOW_NOTIFICATION,
+                payload: { message: message || "Registration successful!", severity: "success" },
+            });
 
-                              // Trigger success notification
-                              dispatch({
-                                type: SHOW_NOTIFICATION,
-                                payload: { message: 'Registeration successfull!', severity: 'success' }
-                            }); 
-        
+            // Navigate based on user role
+            setTimeout(() => {
+                if (data.role === "ROLE_ADMIN") {
+                    reqData.navigate("/admin/restaurants"); // Fixed typo in route
+                } else {
+                    reqData.navigate("/verify-otp");
+                }
+            }, 2000); // 2-second delay for notification visibility
+        } else{
+            // Handle unexpected case where success is false but no error thrown
+            dispatch({
+                type: REGISTER_FAILURE,
+                payload: { message: message || "Registration failed. Please try again." },
+            });
+
+            dispatch({
+                type: SHOW_NOTIFICATION,
+                payload: { message: message || "Registration failed. Please try again!", severity: "error" },
+            });
+            console.log("Registration failed with message:", message);
+        }
 
     } catch (error) {
-        dispatch({type:REGISTER_FAILURE, payload:error})
-        console.log("error",error);
+        // Extract error message from backend response if available
+        let errorMessage = "Registration failed. Please try again!";
+        if (error.response && error.response.data) {
+            const { message, status } = error.response.data;
+            errorMessage = message || errorMessage;
 
-           // Trigger error notification
-           dispatch({
+            // Handle specific error cases
+            if (status === 409) {
+                errorMessage = "Email or username already exists!";
+            } else if (status === 400) {
+                errorMessage = message || "Invalid input data. Please check your details.";
+            }
+        } else if (error.request) {
+            errorMessage = "No response from server. Please check your network connection.";
+        } else {
+            errorMessage = error.message || errorMessage;
+        }
+        // Dispatch failure action
+        dispatch({
+            type: REGISTER_FAILURE,
+            payload: { message: errorMessage },
+        });
+
+        // Trigger error notification
+        dispatch({
             type: SHOW_NOTIFICATION,
-                payload: { message: 'Registeration Failed. Please try again!', severity: 'error' }
-            });
-        
+            payload: { message: errorMessage, severity: "error" },
+        });
+
+        console.error("Registration error:", error);
     }
 }
 
@@ -53,67 +89,84 @@ export const loginUser=(reqData)=>async(dispatch)=>{
 
     try {
         //pass the url of backend api in data and reqdata is a body which contain the userdata from the front end
-        const{data}=await api.post(`${API_URL}/auth/signin`,reqData.userData);
+        const response=await api.post(`/signin`,reqData.userData);
+        const { success, data, message, status } = response.data;
 
-        //store the jwt token which receive from backend in localstorage of system
-        if(data.token)localStorage.setItem("jwt", data.token);
+        if(success){
 
-        //if user is registered as restaurent_owner role then we will navigate  it to admin/restaurent api
-        
-        if(data.role==="ROLE_ADMIN"){
-            setTimeout(()=>{
-                reqData.navigate("/admin/restaurents")
-            },2000)
-        }
-        else{
-            setTimeout(() => {
-                reqData.navigate("/");
-            }, 2000); // Wait for 2 seconds before navigating
-                }
-        dispatch({type:LOGIN_SUCCESS, payload:data.token})
+        dispatch({type:LOGIN_SUCCESS, payload:data})
         console.log("login success",data);
 
-                      // Trigger success notification
+           // Trigger success notification
                       dispatch({
                         type: SHOW_NOTIFICATION,
-                        payload: { message: 'Login successfull!', severity: 'success' }
+                payload: { message: message || "Login successful!", severity: "success" },
                     }); 
         
+            // Navigate based on user role
+            setTimeout(() => {
+                if (data.role === "ROLE_ADMIN") {
+                    reqData.navigate("/admin/restaurants"); // Fixed typo in route
+                } else {
+                    reqData.navigate("/");
+                }
+            }, 2000); // 2-second delay for notification visibility
+        }else{
+            dispatch({type:LOGIN_FAILURE, 
+                payload: { message: message || "Login failed. Please try again." },
+            })
+
+            dispatch({
+                type: SHOW_NOTIFICATION,
+                payload: { message: message || "Login failed. Please try again!", severity: "error" },
+            });
+            console.log("Login failed with message:", message);
+        }
 
     } catch (error) {
-        dispatch({type:LOGIN_FAILURE, payload:error})
-        console.log("error",error);
+                let errorMessage = "Login failed. Please try again!";
+        if (error.response && error.response.data) {
+            const { message, status } = error.response.data;
+            errorMessage = message || errorMessage;
 
-         // Trigger error notification
+            // Handle specific error cases
+             if (status === 400) {
+                errorMessage = message || "Invalid input data. Please check your details.";
+            }
+        } else if (error.request) {
+            errorMessage = "No response from server. Please check your network connection.";
+        } else {
+            errorMessage = error.message || errorMessage;
+        }
+
+        dispatch({type:LOGIN_FAILURE, 
+                payload: { message: errorMessage },
+        });
+
+        // Trigger error notification
         dispatch({
             type: SHOW_NOTIFICATION,
-                payload: { message: 'Login Failed. Please try again!', severity: 'error' }
-            });
-        
+            payload: { message: errorMessage, severity: "error" },
+        });
+        console.error("Login error:", error);
     }
 }
 
-export const getUser=(jwt)=>async(dispatch)=>{
+export const getUser=()=>async(dispatch)=>{
     dispatch({type:GET_USER_REQUEST})
 
     try {
         //here we created api instance, when we are using api instance we don't need to provide API_URL
-        const{data}=await api.get(`/api/users/profile`,{
-            headers:{
-                Authorization:`Bearer ${jwt}`
-            }
-        });
+        const{data}=await api.get(`/user`,{});
+
         //we don't receive any jwt here
-        dispatch({type:GET_USER_SUCCESS, payload:data})
+        dispatch({type:GET_USER_SUCCESS, payload:data.data})
         console.log("user profile",data);
 
     } catch (error) {
         dispatch({type:GET_USER_FAILURE, payload:error})
             // if token expired
     if (error.response?.status === 401 && error.response.data?.error === "Token expired") {
-        // clear jwt
-        localStorage.removeItem("jwt");
-  
         // show notification
         dispatch(showNotification("Session expired. Please log in again.", "warning"));
   
@@ -125,17 +178,13 @@ export const getUser=(jwt)=>async(dispatch)=>{
     }
 }
 
-export const addToFavouriter=({jwt,restaurentId})=>async(dispatch)=>{
+export const addToFavouriter=({restaurentId})=>async(dispatch)=>{
     dispatch({type:ADD_TO_FAVOURITE_REQUEST})
     try {
         //pass the url of backend api in data and body is mandatory and we can pass empty body{} also/
-        const{data}=await api.put(`/api/restaurants/${restaurentId}/add-favourites`,{},{
-            headers:{
-                Authorization:`Bearer ${jwt}`
-            }
-        });
+        const{data}=await api.put(`/restaurants/${restaurentId}/add-favourites`,{});
 
-        dispatch({type:ADD_TO_FAVOURITE_SUCCESS, payload:data})
+        dispatch({type:ADD_TO_FAVOURITE_SUCCESS, payload:data.data})
         console.log("added to favourite",data);
 
     } catch (error) {
@@ -146,12 +195,15 @@ export const addToFavouriter=({jwt,restaurentId})=>async(dispatch)=>{
 
 export const logout=()=>async(dispatch)=>{
     try {
-        localStorage.clear();
-        dispatch({type:LOGOUT})
-        console.log("logout successfull");
+        await api.post('/logout');
+        dispatch({type:LOGOUT});
+        toast.success('Logged out successfully');
+        console.log('Logout successful');
 
     } catch (error) {
         console.log("error",error);
+        toast.error(error.response?.data?.error || 'Failed to log out');
+
         
     }
 }

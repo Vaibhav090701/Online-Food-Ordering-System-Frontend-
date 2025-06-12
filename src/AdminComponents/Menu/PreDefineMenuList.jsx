@@ -34,9 +34,9 @@ const PredefinedMenuList = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(getMenuItemByCategory({ id: id, jwt }));
+      dispatch(getMenuItemByCategory({id: id}));
     }
-  }, [id, dispatch, jwt]);
+  }, [id, dispatch]);
 
   // Get unique template types
   const templateTypes = ['All', ...new Set(menuItems.map((item) => item.templateType))];
@@ -51,18 +51,18 @@ const PredefinedMenuList = () => {
   });
 
   const goBack=()=>{
-    navigate('/admin/restaurents/menu/categories');
+    navigate('/admin/restaurants/menu/categories');
   }
 
   const onSelectItem=(item)=>{
     console.log("Selected Predefined Item:", item);
-    navigate('/admin/restaurents/menu-form',{
+    navigate('/admin/restaurants/menu-form',{
       state:{item,id,mode:"prefill"}
     },
   )}
 
   const onCreateNew=()=>{
-    navigate(`/admin/restaurents/menu-form`,{
+    navigate(`/admin/restaurants/menu-form`,{
       state:{id,mode:"custom"},
     });
   }

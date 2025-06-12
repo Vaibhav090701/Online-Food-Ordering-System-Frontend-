@@ -35,7 +35,7 @@ const initialState = {
         return {
           ...state,
           isLoading: false,
-          cartItems: [action.payload, ...state.cartItems],
+          cartItems: [action.payload, ...state?.cartItems],
         };
       case UPDATE_CART_ITEM_SUCCESS:
 

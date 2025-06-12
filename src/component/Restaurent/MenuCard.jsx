@@ -29,7 +29,7 @@ const MenuCard = ({ item, restaurantId }) => {
   const dispatch = useDispatch();
 
   // Handle ingredient checkbox change
-  const handleCheckBoxChange = (itemName) => {
+  const handleCheckBoxChange = (itemName) => { 
     if (selectedIngredients.includes(itemName)) {
       setSelectedIngredients(selectedIngredients.filter((name) => name !== itemName));
     } else {
@@ -42,7 +42,6 @@ const MenuCard = ({ item, restaurantId }) => {
     e.preventDefault();
     setIsAdding(true);
     const reqData = {
-      token: localStorage.getItem('jwt'),
       cartItem: {
         menuItemId: item.id,
         quantity: 1,
@@ -50,6 +49,8 @@ const MenuCard = ({ item, restaurantId }) => {
         restaurantId,
       },
     };
+    console.log("Data", reqData);
+    
     try {
       await dispatch(addItemToCart(reqData));
       setIsDialogOpen(false);
@@ -214,10 +215,11 @@ const MenuCard = ({ item, restaurantId }) => {
           </DialogTitle>
           <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Typography variant="body2" sx={{ color: '#9ca3af', mb: 2 }}>
-              Select Ingredients
+              Select Add-Ons
             </Typography>
             <FormGroup>
               {item.ingredients.map((ingredient) => (
+                <div className='inline-flex justify-between '>
                 <FormControlLabel
                   key={ingredient.id}
                   control={
@@ -229,6 +231,9 @@ const MenuCard = ({ item, restaurantId }) => {
                   }
                   label={<Typography sx={{ color: '#ffffff', fontSize: '0.9rem' }}>{ingredient.name}</Typography>}
                 />
+                <p className='mt-2 text-[0.9rem]'>₹   {ingredient.price}</p>
+
+                </div>
               ))}
             </FormGroup>
           </DialogContent>

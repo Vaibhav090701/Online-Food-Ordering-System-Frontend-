@@ -15,6 +15,13 @@ export const cuisineTypes=[
     "Italian",
     "Mexican",
     "Thai",
+];
+
+export const restaurantCategories=[
+  "Only Vegetarian",
+  "Only Non-Vegetarin",
+  "Both",
+  "Cafe"
 ]
 
 export const style = {

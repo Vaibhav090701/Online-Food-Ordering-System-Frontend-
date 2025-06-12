@@ -24,13 +24,25 @@ const CategoryGrid = () => {
     const navigate=useNavigate();
 
     useEffect(()=>{
-      dispatch(getAllMenuCategories(jwt));
+      dispatch(getAllMenuCategories());
     },[])
+
+    // const handleUpdate = (id) => {
+    //     dispatch(updateMenuCategory({
+    //         id,
+    //         reqData: {
+    //             categoryName: "Updated Desserts",
+    //             categoryDescription: "Premium sweets",
+    //             categoryImages: ["image3.jpg"],
+    //             globalCategory: false
+    //         }
+    //     }));
+    // };
 
 
     const onSelectCategory=(category)=>{
         console.log("Selected Category:", category);
-        navigate(`/admin/restaurents/categories/${category.id}/menu-item`);
+        navigate(`/admin/restaurants/categories/${category.id}/menu-item`);
 
 
         setSelectedCategory(category);
@@ -45,11 +57,11 @@ const CategoryGrid = () => {
       };
 
       const handleDelete=(id)=>{
-        dispatch(deleteMenuCategory({jwt, id:id}))
+        dispatch(deleteMenuCategory(id))
       }
 
       const handleGoBack=()=>{
-        navigate("/admin/restaurents/menu");
+        navigate("/admin/restaurants/menu");
       }
     
   return (

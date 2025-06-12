@@ -1,92 +1,130 @@
-import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material'
-import { Chip, IconButton } from '@mui/material'
-import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { findCart, removeCartItem, updateCartItem } from '../State/Cart/Action'
+import { Box, IconButton, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useDispatch } from 'react-redux';
+import { updateCartItem, removeCartItem } from '../State/Cart/Action';
 
-const CartItem = ({item}) => {
+const CartItem = ({ item }) => {
+  const [quantity, setQuantity] = useState(item.quantity);
+  const dispatch = useDispatch();
 
-    const navigate=useNavigate();
-    const dispatch=useDispatch();
-    const {cart,auth}=useSelector(store=>store);
-    const jwt=localStorage.getItem("jwt");
-
-    console.log("Item", item);
-    const [imageSrc, setImageSrc] = useState(null);
-
-    useEffect(() => {
-        // Check if images are available and set the first image as the source
-        if (item?.menuItemDto?.images && item.menuItemDto.images.length > 0) {
-          setImageSrc(item.menuItemDto.images[0]);
-        }
-      }, [item]);
+  const handleUpdateQuantity = (newQuantity) => {
+    if (newQuantity < 1){
+      handleRemoveItem()
+    };
     
-    
+    setQuantity(newQuantity);
+    dispatch(
+      updateCartItem({
+        id: item.id,
+        quantity: newQuantity,
+      })
+    );
+  };
 
-    const handleUpdateCartItem=(value)=>{
-        if(value===-1 && item.quantity===1)
-        {
-            handleRemoveCartItem();
-        }
-        const quantity=item.quantity+value;
-        const id=item.id;
-        dispatch(updateCartItem({id,quantity,jwt}));
-    }
-
-    const handleRemoveCartItem=()=>{
-        dispatch(removeCartItem({cartItemId:item.id,jwt:auth.jwt || jwt}));
-    }
+  const handleRemoveItem = () => {
+    dispatch(removeCartItem({ cartItemId: item.id }));
+  };
 
   return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        py: 1,
+      }}
+    >
+      <Box
+        sx={{
+          width: { xs: 50, sm: 60 },
+          height: { xs: 50, sm: 60 },
+          borderRadius: '8px',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}
+      >
+        <img
+          src={item.menuItemDto?.images?.[0] || ''}
+          alt={item.menuItemDto?.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </Box>
+      <Box sx={{ flex: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: '#ffffff',
+            fontWeight: 'bold',
+            fontSize: { xs: '0.85rem', sm: '0.9rem' },
+          }}
+        >
+          {item?.name}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: '#9ca3af', fontSize: { xs: '0.75rem', sm: '0.8rem' } }}
+        >
+          ₹{item?.price?.toFixed(2)} x {quantity}
+        </Typography>
+        {item?.ingredients && item?.ingredients.length > 0 && (
+          <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+            {item.ingredients.map((addon) => (
+              <Typography
+                key={addon.id}
+                variant="body2"
+                sx={{
+                  color: '#f97316',
+                  fontStyle: 'italic',
+                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                }}
+              >
+                + {addon.name} (₹{addon.price.toFixed(2)})
+              </Typography>
+            ))}
+          </Box>
+        )}
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: 'rgba(249, 115, 22, 0.2)',
+            borderRadius: '8px',
+            p: 0.3,
+          }}
+        >
+          <IconButton
+            size="small"
+            onClick={() => handleUpdateQuantity(quantity - 1)}
+            sx={{ color: '#f97316', p: 0.5 }}
+          >
+            <RemoveIcon fontSize="small" />
+          </IconButton>
+          <Typography sx={{ color: '#ffffff', px: 0.5, fontSize: '0.8rem' }}>
+            {quantity}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => handleUpdateQuantity(quantity + 1)}
+            sx={{ color: '#f97316', p: 0.5 }}
+          >
+            <AddIcon fontSize="small" />
+          </IconButton>
+        </Box>
+        <IconButton
+          size="small"
+          onClick={handleRemoveItem}
+          sx={{ color: '#ef4444', '&:hover': { color: '#dc2626' }, p: 0.5 }}
+        >
+          <DeleteIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    </Box>
+  );
+};
 
-    <div className='pt-5'>
-        <div className='lg:flex items-center lg:space-x-5'>
-            <div>
-                {/* Check if imageSrc is available before rendering */}
-          {imageSrc ? (
-            <img className="w-[5rem] h-[5rem] object-cover" src={imageSrc} alt={item.name} />
-          ) : (
-            <div className="w-[5rem] h-[5rem] bg-gray-300 flex items-center justify-center">No Image</div>
-          )}
-            </div>
-
-            <div className='flex items-center justify-between lg:w-[70%]'>
-                <div className='space-y-1 lg:space-y-3 w-full'>
-                    <p>{item.name}</p>
-                    <div className='flex items-center justify-between'>
-                        <div className='flex items-center space-x-1'>
-                            <IconButton onClick={()=>handleUpdateCartItem(-1)}>
-                                <RemoveCircleOutline/>
-                            </IconButton>
-
-                            <div className='w-5 h-5 flex justify-center items-center text-xs'>{item.quantity}</div>
-
-                            <IconButton onClick={()=>handleUpdateCartItem(1)} >
-                                <AddCircleOutline/>
-                            </IconButton>
-                        </div>
-
-                    </div>
-
-                </div>
-                <p>${item.price}</p>
-
-            </div>
-        </div>
-
-        <div className='pt-3 space-x-2'>
-
-            {item.ingredients?.length > 0 && item.ingredients ? (
-                item.ingredients.map((ingredient, index)=> <Chip key={index} label={ingredient}/>))
-            :(
-                <p className="text-gray-500">No ingredients selected</p> // Message when no ingredients
-              )}
-        </div>
-    </div>
-  )
-}
-
-export default CartItem
-
-
+export default CartItem;

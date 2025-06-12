@@ -4,13 +4,14 @@ import OrderTable from './OrderTable';
 
 const orderStatus = [
   { label: "Pending", value: "PENDING" },
-  { label: "Completed", value: "COMPLETED" },
+  { label: "Completed", value: "DELIVERED" },
   { label: "All", value: "ALL" }
 ];
 
 const Orders = () => {
   // Initialize filterValue with "ALL" to ensure that at least one option is selected by default
   const [filterValue, setFilterValue] = useState();
+
 
   // Correct event handler for RadioGroup
   const handleFilter = (e,value) => {

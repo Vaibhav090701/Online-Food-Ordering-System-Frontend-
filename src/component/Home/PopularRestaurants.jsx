@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 
-const PopularRestaurants = () => {
+const   PopularRestaurants = () => {
     const [restaurants, setRestaurants]=useState([]);
     const navigate=useNavigate();
     
@@ -13,7 +13,7 @@ const PopularRestaurants = () => {
     useEffect(()=>{
       const fetchData = async () => {
         if (restaurent.allRestaurents.length > 0) {
-          setRestaurants(restaurent.allRestaurents);
+          setRestaurants(restaurent.allRestaurents.filter((item)=>!item.deleted));
         }
       };
     
@@ -24,9 +24,9 @@ const PopularRestaurants = () => {
 
 
     const handleClick=(item)=>{
-        if(auth.jwt){
+        if(auth.user){
           if(item.status){
-            navigate(`/restaurent/${item.address.city}/${item.name}/${item.id}`)
+            navigate(`/restaurant/${item.id}`)
           }
           else{
             alert("Restaurant is closed");

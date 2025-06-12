@@ -11,15 +11,8 @@ const Orders = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(getUserOrders(jwt));
-  }, [auth.jwt]);
-
-  console.log("Orders", order.orders);
-
-  // Check if orders are loading or if orders is undefined
-  if (order.isLoading) {
-    return <div className='text-center py-7'>Loading orders...</div>;
-  }
+    dispatch(getUserOrders());
+  }, [auth.user]);
 
   // Check if orders is undefined or empty
   if (!order.orders || order.orders.length === 0) {

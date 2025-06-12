@@ -1,85 +1,72 @@
-import React, { useEffect, useState } from 'react';
-import AdminSideBar from './AdminSideBar';
+import React, { useEffect } from 'react';
+import { Box, useMediaQuery } from '@mui/material';
 import { Route, Routes } from 'react-router-dom';
+import AdminSideBar from './AdminSideBar';
 import Dashboard from '../Dashboard/Dashboard';
 import Orders from '../Orders/Orders';
 import Menu from '../Menu/Menu';
-import FoodCategory from '../FoodCategory/FoodCategory';
 import Ingredients from '../Ingredients/Ingredients';
-import Events from '../Events/Events';
-import RestaurentDetails from './RestaurentDetails';
 import CreateMenuForm from '../Menu/CreateMenuForm';
-import { useDispatch, useSelector } from 'react-redux';
-import { getMenuItemByRestaurentId } from '../../component/State/Menu/Action';
-import { getUserOrders } from '../../component/State/Order/Action';
-import { getRestaurentOrders } from '../../component/State/Admin/Restaurent Orders/Action';
-import { IconButton, useMediaQuery } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 import CategoryGrid from '../Menu/MenuCategory/CategoryGrid';
 import PredefinedMenuList from '../Menu/PreDefineMenuList';
 import CreateIngredientForm from '../Ingredients/CreateIngredientForm';
+import { useDispatch, useSelector } from 'react-redux';
+// import { getRestaurentOrders } from '../../component/State/Admin/Restaurent Orders/Action';
+import RestaurentDetails from './RestaurentDetails';
 
 const Admin = () => {
-    const dispatch = useDispatch();
-    const { restaurent } = useSelector(store => store);
-    const jwt = localStorage.getItem("jwt");
-    const isSmallScreen = useMediaQuery("(max-width:1080px)");
-    const [isSidebarOpen, setIsSidebarOpen] = useState(!isSmallScreen);
+  const dispatch = useDispatch();
+  const { restaurent } = useSelector((store) => store);
+  const isSmallScreen = useMediaQuery('(max-width:1080px)');
 
-    useEffect(() => {
-        dispatch(getRestaurentOrders({
-            restaurentId: restaurent.userRestaurent.id,
-            orderStatus: "pending",
-            jwt
-        }));
-    }, [dispatch, restaurent.userRestaurent?.id, jwt]);
+  useEffect(() => {
+    // if (restaurent.userRestaurent?.id) {
+    //   dispatch(
+    //     getRestaurentOrders({
+    //       restaurentId: restaurent.userRestaurent.id,
+    //       orderStatus: 'pending',
+    //     })
+    //   );
+    // }
+  }, [dispatch, restaurent.userRestaurent?.id]);
 
-    const handleClose = () => {
-        setIsSidebarOpen(false);
-    };
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        minHeight: '100vh',
+        width: '100%',
+        overflowX: 'hidden',
+        bgcolor: '#000000',
+        // background: 'linear-gradient(180deg, #1f2937 0%, #000000 100%)',
+      }}
+    >
+      <AdminSideBar />
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
-
-    return (
-        <div className='flex'>
-            {/* Sidebar */}
-            <AdminSideBar handleClose={handleClose} isOpen={isSidebarOpen} />
-
-            {/* Main Content */}
-            <div
-                className='flex-1 transition-all duration-300'
-                style={{
-                    marginLeft: isSmallScreen ? 0 : isSidebarOpen ? '20vw' : 0,
-                }}
-            >
-                {/* Toggle Button for Small Screens */}
-                {isSmallScreen && (
-                    <IconButton onClick={toggleSidebar} sx={{ position: 'fixed', top: 10, left: 10, zIndex: 1200 }}>
-                        <MenuIcon />
-                    </IconButton>
-                )}
-
-                {/* Routes */}
-                <div className='p-4'>
-                    <Routes>
-                        <Route path='/' element={<Dashboard />} />
-                        <Route path='/orders' element={<Orders />} />
-                        <Route path='/menu' element={<Menu />} />
-                        <Route path='/category' element={<FoodCategory />} />
-                        <Route path='/ingredients' element={<Ingredients />} />
-                        <Route path='/events' element={<Events />} />
-                        <Route path='/details' element={<RestaurentDetails />} />
-                        <Route path='/menu/categories' element={<CategoryGrid/>} />
-                        <Route path='/menu-form' element={<CreateMenuForm/>}/>
-                        <Route path='/categories/:id/menu-item' element={<PredefinedMenuList/>}></Route>
-                        <Route path='/ingredients/create' element={<CreateIngredientForm/>}></Route>
-                    </Routes>
-                </div>
-            </div>
-        </div>
-    );
+      <Box
+        sx={{
+          flex: 1,
+          width: '100%',
+          pb: { xs: '76px', lg: 0 },
+          overflowX: 'hidden',
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: '1200px', mx: 'auto'}}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/ingredients" element={<Ingredients />} />
+            <Route path="/menu-form" element={<CreateMenuForm />} />
+            <Route path="/menu/categories" element={<CategoryGrid />} />
+            <Route path="/categories/:id/menu-item" element={<PredefinedMenuList />} />
+            <Route path="/ingredients/create" element={<CreateIngredientForm />} />
+            <Route path="/details" element={<RestaurentDetails/>}></Route>
+          </Routes>
+        </Box>
+      </Box>
+    </Box>
+  );
 };
 
 export default Admin;

@@ -20,20 +20,28 @@ export const authReducer=(state=initialState,action)=>{
             
         case REGISTER_SUCCESS:
         case LOGIN_SUCCESS:
-            return {...state, isLoading:false, success:"Register success", jwt:action.payload};
+            return {...state, isLoading:false, success:"Register success", user:action.payload};
         
         case GET_USER_SUCCESS:
              return {...state, isLoading:false, user:action.payload, favourites:action.payload.favourites};
 
         case LOGOUT:
-            return initialState;
+            return {
+        ...initialState,
+        user: null,
+        isAuthenticated: false,
+      };
     
         case ADD_TO_FAVOURITE_SUCCESS:
+            const favouritesList = Array.isArray(state.favourites) ? state.favourites : [];
+
             return{...state, isLoading:false, 
                 //here we are checking if restaurent(action.payload) is already present inside favourites then remove it from that list, else add to the list 
-                favourites:isPresentInFavourites(state.favourites, action.payload) ? state.favourites.filter((item)=> item.id!==action.payload.id):
-                [action.payload, ...state.favourites],
-                error:null};
+  favourites: isPresentInFavourites(favouritesList, action.payload)
+    ? favouritesList.filter((item) => item.id !== action.payload.id)
+    : [action.payload, ...favouritesList],
+  error: null,
+};
 
         case REGISTER_FAILURE:
         case LOGIN_FAILURE:

@@ -6,7 +6,7 @@ import { uploadImageToCloudinary } from '../util/UploadToCloudinary';
 import { AddPhotoAlternate} from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import CityAutocomplete from '../CreateRestaurent/CityAutoComplete';
-import { cities, cuisineTypes, style } from '../../util/constants';
+import { cities, cuisineTypes, restaurantCategories, style } from '../../util/constants';
 
 
 const RestaurentDetails = () => {
@@ -22,6 +22,7 @@ const RestaurentDetails = () => {
     twitter: restaurent.userRestaurent?.twitter || '',
     instagram: restaurent.userRestaurent?.instagram || '',
     description: restaurent.userRestaurent?.description || '',
+    restaurantCategory:restaurent.userRestaurent?.restaurantCategory || '',
     images:restaurent.userRestaurent?.images || [],
     cuisineType:restaurent.userRestaurent?.cuisineType || '',
     city:restaurent.userRestaurent?.city || '',
@@ -131,6 +132,10 @@ const RestaurentDetails = () => {
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Owner:</Typography>
                   <Typography variant="body1">{restaurent.userRestaurent.name}</Typography>
+                </div>
+                 <div className="flex justify-between">
+                  <Typography variant="body1" color="textSecondary">Restaurant Type:</Typography>
+                  <Typography variant="body1">{restaurent.userRestaurent.restaurantCategory}</Typography>
                 </div>
                 <div className="flex justify-between">
                   <Typography variant="body1" color="textSecondary">Cuisine Type:</Typography>
@@ -329,6 +334,17 @@ const RestaurentDetails = () => {
             value={updatedInfo.description}
             onChange={handleInputChange}
           />
+           <FormControl fullWidth>
+      <InputLabel>Restaurant Type</InputLabel>
+      <Select className='mb-3' name='restaurantCategory' value={updatedInfo.restaurantCategory} onChange={handleInputChange} label="Restaurant Type">
+        {restaurantCategories.map((type, index) => (
+          <MenuItem key={index} value={type}>
+            {type}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+
       <FormControl fullWidth>
       <InputLabel>Cuisine Type</InputLabel>
       <Select name='cuisineType' value={updatedInfo.cuisineType} onChange={handleInputChange} label="City">

@@ -1,12 +1,13 @@
 import { Box, Card, CardHeader, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Pagination } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { getRestaurentOrders, updateOrderStatus } from '../../component/State/Admin/Restaurent Orders/Action'; // Import the updateOrderStatus action
+import { updateOrderStatus } from '../../component/State/Admin/Restaurent Orders/Action'; // Import the updateOrderStatus action
+import { getRestaurantOrders } from '../../component/State/Order/Action';
 
 const OrderTable = ({filterValue}) => {
 
   const dispatch = useDispatch();
-  const { restaurentOrders, restaurent } = useSelector(store => store);
+  const { order, restaurent } = useSelector(store => store);
   const jwt = localStorage.getItem("jwt");
 
     // State for pagination
@@ -15,7 +16,7 @@ const OrderTable = ({filterValue}) => {
   
 
   useEffect(() => {
-    dispatch(getRestaurentOrders({jwt, status:filterValue, page:page, limit}));
+    dispatch(getRestaurantOrders({ status:filterValue, page:page, limit}));
   }, [dispatch, jwt, filterValue, page, limit]);
 
     // Function to handle page changes
@@ -25,7 +26,7 @@ const OrderTable = ({filterValue}) => {
   
   // Function to update the order status
   const handleStatusChange = (orderId, newStatus) => {
-    dispatch(updateOrderStatus(newStatus,orderId,jwt)); // Dispatch the action to update the status
+    dispatch(updateOrderStatus(newStatus,orderId)); // Dispatch the action to update the status
   };
 
   return (
@@ -51,7 +52,7 @@ const OrderTable = ({filterValue}) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {restaurentOrders.orders.map((order, index) => (
+            {order.restaurantOrders.content.map((order, index) => (
               <TableRow
                 key={order.id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

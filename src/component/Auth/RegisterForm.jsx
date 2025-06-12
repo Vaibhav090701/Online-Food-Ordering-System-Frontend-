@@ -11,7 +11,7 @@ import {
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../State/Authentication/Action';
 
 const validationSchema = Yup.object().shape({
@@ -28,13 +28,14 @@ const RegisterForm = () => {
     username: '',
     email: '',
     password: '',
-    role: '',
+    role: 'ROLE_CUSTOMER',
   };
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+const { loading } = useSelector((state) => state.auth);
   const handleSubmit = (values) => {
+    
     dispatch(registerUser({ userData: values, navigate }));
   };
 
@@ -89,36 +90,26 @@ const RegisterForm = () => {
             )}
           </Field>
 
-          <Field name="role">
+            {/* <Field name="role">
             {({ field, meta }) => (
-              <FormControl fullWidth margin="normal" error={meta.touched && !!meta.error}>
-                <InputLabel id="role-label">Role</InputLabel>
-                <Select
-                  {...field}
-                  labelId="role-label"
-                  id="role"
-                  label="Role"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: { backgroundColor: '#000' },
-                    },
-                  }}
-                >
-                  <MenuItem value="ROLE_CUSTOMER">Customer</MenuItem>
-                  <MenuItem value="ROLE_ADMIN">Restaurant Owner</MenuItem>
-                </Select>
-                {meta.touched && meta.error && (
-                  <Typography variant="caption" color="error">
-                    {meta.error}
-                  </Typography>
-                )}
-              </FormControl>
+              <TextField
+                {...field}
+                label="Password"
+                type="password"
+                fullWidth
+                variant="outlined"
+                margin="normal"
+                error={meta.touched && !!meta.error}
+                helperText={meta.touched && meta.error}
+              />
             )}
-          </Field>
+          </Field> */}
 
-          <Button sx={{ mt: 2, padding: '1rem' }} type="submit" fullWidth variant="contained">
-            Register
-          </Button>
+
+
+          <Button disabled={loading} sx={{ mt: 2, padding: '1rem' }} type="submit" fullWidth variant="contained">
+            {loading ? "Registering..." : "Register"}          
+            </Button>
 
           <Typography variant="body1" align="center" sx={{ mt: 3 }}>
             Already have an account?

@@ -1,62 +1,159 @@
-import { Dashboard } from '@mui/icons-material';
-import ShoppingBag from '@mui/icons-material/ShoppingBag';
-import ShopTwoIcon from '@mui/icons-material/ShopTwo';
-import CategoryIcon from '@mui/icons-material/Category';
-import FastfoodIcon from '@mui/icons-material/Fastfood';
-import EventIcon from '@mui/icons-material/Event';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import LogoutIcon from '@mui/icons-material/Logout';
 import React from 'react';
-import { Divider, Drawer, useMediaQuery } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import {
+  BottomNavigation,
+  BottomNavigationAction,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  useMediaQuery,
+} from '@mui/material';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import ShopTwoIcon from '@mui/icons-material/ShopTwo';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../component/State/Authentication/Action';
 
-const menu = [
-    { title: "Dashboard", icon: <Dashboard />, path: "/" },
-    { title: "Orders", icon: <ShoppingBag />, path: "/orders" },
-    { title: "Menu", icon: <ShopTwoIcon />, path: "/menu" },
-    { title: "Ingredients", icon: <FastfoodIcon />, path: "/ingredients" },
-    { title: "Events", icon: <EventIcon />, path: "/events" },
-    { title: "Details", icon: <AdminPanelSettingsIcon />, path: "/details" },
-    { title: "Logout", icon: <LogoutIcon />, path: "/" },
-];
+const AdminSideBar = () => {
+  const isSmallScreen = useMediaQuery('(max-width:1080px)');
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
 
-const AdminSideBar = ({ handleClose, isOpen }) => {
-    const isSmallScreen = useMediaQuery("(max-width:1080px)");
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const menu = [
+    { title: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { title: 'Orders', icon: <ShoppingBagIcon />, path: '/orders' },
+    { title: 'Menu', icon: <ShopTwoIcon />, path: '/menu' },
+    { title: 'Ingredients', icon: <FastfoodIcon />, path: '/ingredients' },
+    { title: 'Logout', icon: <LogoutIcon />, path: '/logout' },
+  ];
 
-    const handleNavigate = (item) => {
-        navigate(`/admin/restaurents${item.path}`);
-        if (item.title === "Logout") {
-            navigate("/");
-            dispatch(logout());
-            handleClose();
-        }
-    };
+  const handleNavigate = (item) => {
+    if (item.title === 'Logout') {
+      dispatch(logout());
+      navigate('/');
+    } else {
+      navigate(`/admin/restaurants${item.path}`);
+    }
+  };
 
+  const getActiveIndex = () => {
+    const currentPath = location.pathname;
+    const index = menu.findIndex((item) => `/admin/restaurants${item.path}` === currentPath);
+    return index >= 0 ? index : false;
+  };
+
+  if (isSmallScreen) {
     return (
-        <Drawer
-            anchor='left'
-            sx={{ zIndex: 1 }}
-            open={isOpen}
-            onClose={handleClose}
-            variant={isSmallScreen ? "temporary" : "permanent"}
-        >
-            <div className='w-[70vw] lg:w-[21.5vw] h-screen flex flex-col justify-center text-xl space-y-[1.5rem] bg-black'>
-                {menu.map((item, i) => (
-                    <React.Fragment key={i}>
-                        <div onClick={() => handleNavigate(item)} className='px-5 pt-5 flex items-center gap-5 cursor-pointer'>
-                            {item.icon}
-                            <span>{item.title}</span>
-                        </div>
-                        {i !== menu.length - 1 && <Divider />}
-                    </React.Fragment>
-                ))}
-            </div>
-        </Drawer>
+      <BottomNavigation
+        value={getActiveIndex()}
+        showLabels
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
+        //   bgcolor: 'rgba(31, 41, 55, 0.9)',
+          backdropFilter: 'blur(10px)',
+          borderTop: '1px solid #d4a017',
+          height: '60px',
+          zIndex: 1300,
+          '& .MuiBottomNavigationAction-root': {
+            color: '#9ca3af',
+            minWidth: '60px',
+            padding: '6px 0',
+          },
+          '& .Mui-selected': {
+            color: '#f97316 !important',
+            '& .MuiBottomNavigationAction-label': {
+              fontWeight: 'bold',
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+            },
+          },
+          '& .MuiBottomNavigationAction-label': {
+            fontSize: { xs: '0.7rem', sm: '0.8rem' },
+            color: 'inherit',
+          },
+        }}
+      >
+        {menu.map((item, index) => (
+          <BottomNavigationAction
+            key={item.title}
+            label={item.title}
+            icon={item.icon}
+            onClick={() => handleNavigate(item)}
+            sx={{
+              '& .MuiSvgIcon-root': {
+                fontSize: { xs: '1.25rem', sm: '1.5rem' },
+              },
+            }}
+          />
+        ))}
+      </BottomNavigation>
     );
+  }
+
+  return (
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: 240,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: 240,
+        //   bgcolor: 'rgba(31, 41, 55, 0.9)',
+          backdropFilter: 'blur(10px)',
+          borderRight: '1px solid #d4a017',
+          color: '#ffffff',
+          boxSizing: 'border-box',
+          top: 0,
+          pt: 8,
+        },
+      }}
+    >        
+      <List>
+        {menu.map((item) => (
+          <ListItem
+            key={item.title}
+            onClick={() => handleNavigate(item)}
+            sx={{
+              py: 1.5,
+              px: 2,
+              bgcolor:
+                location.pathname === `/admin/restaurants${item.path}`
+                  ? 'rgba(249, 115, 22, 0.1)'
+                  : 'transparent',
+              color: location.pathname === `/admin/restaurants${item.path}` ? '#f97316' : '#9ca3af',
+              '&:hover': {
+                color: '#f97316',
+                bgcolor: 'rgba(249, 115, 22, 0.05)',
+                transform: 'scale(1.02)',
+                transition: 'all 0.2s',
+              },
+              cursor: 'pointer',
+            }}
+          >
+            <ListItemIcon sx={{ color: 'inherit', minWidth: '40px' }}>{item.icon}</ListItemIcon>
+            <ListItemText
+              primary={item.title}
+              sx={{
+                '& .MuiTypography-root': {
+                  fontSize: '1rem',
+                  fontWeight: location.pathname === `/admin/restaurants${item.path}` ? 'bold' : 'normal',
+                },
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Drawer>
+  );
 };
 
 export default AdminSideBar;

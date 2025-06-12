@@ -1,364 +1,427 @@
-import React, { useEffect, useState } from 'react'
-import CartItem from './CartItem'
-import { Box, Button, Card, Divider, Grid, Modal, TextField } from '@mui/material'
-import AddressCart from './AddressCart';
-import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
-import { ErrorMessage, Field, Form, Formik, validateYupSchema } from 'formik';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Fade, Modal, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { createOrder } from '../State/Order/Action';
-import { findCart } from '../State/Cart/Action';
-import { createAddress, getUsersAddress } from '../State/Address/Action';
+import { clearCart, findCart } from '../State/Cart/Action';
+import { createAddress, getUsersAddress, updateAddressDefault } from '../State/Address/Action';
+import { SHOW_NOTIFICATION } from '../State/Notification/ActionType';
 import NotificationSnackbar from '../../util/NotificationSnackBar';
-import { useNavigate } from 'react-router-dom';
+import CartItemsSection from './CartItemSections';
+import AddressSelectionSection from './AddressSelectionSection';
+import PaymentSelectionSection from './PaymentSelectionSection';
+import OrderConfirmationSection from './OrderConfirmationSection';
+import AddressFormModal from './AddressForm';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
-// write this manually but not working so comment it out
-// import * as Yup from 'yup';
+const steps = ['Cart', 'Delivery Address', 'Payment Method', 'Confirm Order'];
 
-export const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'white',
-  outline:"none",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: 2, // ✅ Added border radius (2 = 16px by default in MUI)
-  // Typography Color
-  '& .MuiTypography-root': {
-    color: '#000', // Set default text color for all Typography components inside Box
-  },
-
-    // Adding styles to ensure text visibility in input fields
-    '& .MuiInputLabel-root': {
-      color: '#000', // Change label color to black
-    },
-    '& .MuiInputBase-root': {
-      color: '#000', // Change input text color to black
-    },
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: '#000', // Change border color of text fields
-      },
-      '&:hover fieldset': {
-        borderColor: '#000', // Change border color when the field is focused
-      },
-    },
-     // Style for MenuItem inside Select dropdown
-  '& .MuiMenuItem-root': {
-    backgroundColor: '#000', // Set background color to black
-    color: '#fff', // Set text color to white for contrast
-    '&:hover': {
-      backgroundColor: '#333', // Darker background when hovering over an option
-    }
-  },
-
-    // Style for Select dropdown menu background
-    '& .MuiMenu-paper': {
-      backgroundColor: '#000', // Set the background of the dropdown to black
-      color: '#fff', // Set text color inside the dropdown to white
-    },
-  
-};
-
-const initialValues={
-  streetAddress:"",
-  city:"",
-  state:"",
-  zipCode:0,
-  landmark:"",
-  isDefault:true
-}
-
-const Cart = () => {  
-
-  const [open, setOpen] = React.useState(false);
+const Cart = () => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const jwt=localStorage.getItem("jwt");
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [paymentDetails, setPaymentDetails] = useState('');
+  const [totalAmount, setTotalAmount] = useState(0);
+  const { auth, cart, address } = useSelector((store) => store);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const jwt = localStorage.getItem('jwt');
+  const location = useLocation();
+  const [isInitializing, setIsInitializing] = useState(true);
 
-  const {auth,cart, address}=useSelector((store)=>store)
-  const dispatch=useDispatch();
-  const navigate = useNavigate(); // Initialize navigate
-
-
-  useEffect(()=>{
-    dispatch(findCart(jwt));
-    dispatch(getUsersAddress(jwt));
-    
-},[jwt])
-
-const handleOpenAddressModel=()=>{
-
-  if(auth.jwt){
-    setOpen(true);
-  }
-  else{
-    navigate("/account/login");
-  }
-} 
-
-const handleClose = () => setOpen(false);
-
-
-  const handleSubmit=(values)=>{
-    const data={
-      streetAddress:values.streetAddress,
-      city:values.city,
-      state:values.state,
-      zipCode:values.pincode,
-      landmark:values.landmark,
-      isDefault:true,
-    }
-    dispatch(createAddress({reqData:data, jwt:jwt}));
-  }
-
-  const handleSelectAddress=(address)=>{
-    setSelectedAddress(address);  // Update the selected address\    
-  }
+  // Initialize Stripe with your publishable key
+  const stripePromise = loadStripe('pk_test_51PdvChGC67kgFd3Z1RNyhSTSsXGSHFT3QWbP2tKXBMK9bebb20Ona6rYw28rgenIwTfMLwvVRzktIpsO4ICox8ul00liv8oJ0t'); // Replace with your key
 
   useEffect(() => {
-    if (selectedAddress) {
-      console.log("Selected Address", selectedAddress);
+    dispatch(findCart());
+    dispatch(getUsersAddress());
+    // Only restore session on first load
+    const locationData = location.state;
+
+    if (locationData) {
+      const { activeStep: step, paymentMethod: method, paymentDetails: details, selectedAddress: address1 } = locationData;
+      if (step !== undefined) setActiveStep(step);
+      if (method) setPaymentMethod(method);
+      if (details) setPaymentDetails(details);
+      if (address1) setSelectedAddress(address1);
+    } else {
+      const sessionData = localStorage.getItem('checkoutSession');
+      if (sessionData) {
+        try {
+          const { activeStep: step, selectedAddress: savedAddress, paymentMethod: method, paymentDetails: details } = JSON.parse(sessionData);
+          if (step !== undefined) setActiveStep(step);
+          if (savedAddress) setSelectedAddress(savedAddress);
+          if (method) setPaymentMethod(method);
+          if (details) setPaymentDetails(details);
+        } catch (err) {
+          console.error('Error parsing session data', err);
+          localStorage.removeItem('checkoutSession');
+        }
+      }
     }
-  }, [selectedAddress]);
+    setIsInitializing(false);
+  }, []);
 
-  console.log("Cart Items", cart.cartItems);
-  
+  useEffect(() => {
+    if (isInitializing) return;
+    const sessionData = { activeStep, selectedAddress, paymentMethod, paymentDetails };
+    localStorage.setItem('checkoutSession', JSON.stringify(sessionData));
+    console.log('Session data', sessionData);
+  }, [activeStep, selectedAddress, paymentMethod, paymentDetails, isInitializing]);
 
-  const handlePlaceOrder=()=>{
+  const clearSession = () => {
+    localStorage.removeItem('checkoutSession');
+  };
 
-
-    if(selectedAddress=="" || selectedAddress==null){
-      alert("Please select the address");
+  const handleOpenAddressModal = () => {
+    if (auth.user) {
+      setOpen(true);
+    } else {
+      navigate('/account/login');
     }
-    else{
+  };
 
-      const cartItemsArray = cart.cartItems.map(item => ({
-        menuItemId: item.menuItemDto.id,  // Extract the menuItemId from the cart item
-        quantity: item.quantity           // Extract the quantity from the cart item
-      }));
+  const handleClose = () => setOpen(false);
 
-    const data={
-      paymentMethod:"CARD",
-      addressId:selectedAddress.id,
-      orderItems:cartItemsArray,
-      restaurantId:cart.cartItems[0].restaurantId,
+  const handleSubmit = (data) => {
+    dispatch(createAddress({ reqData: data }));
+  };
+
+  const handleSelectAddress = (address) => {
+    dispatch(updateAddressDefault({ addressId: address?.id }));
+    setSelectedAddress(address);
+  };
+
+  const handleSelectPayment = (method) => {
+    setPaymentMethod(method);
+  };
+
+  const handleNext = () => {
+    if (activeStep === 0 && (!cart.cartItems || cart.cartItems.length === 0)) {
+      dispatch({
+        type: SHOW_NOTIFICATION,
+        payload: { message: 'Cart is empty', severity: 'error' },
+      });
+      return;
     }
-    dispatch(createOrder({jwt:jwt,reqData:data, navigate}))
-  }
-  }
+    if (activeStep === 1 && !selectedAddress) {
+      dispatch({
+        type: SHOW_NOTIFICATION,
+        payload: { message: 'Please select an address', severity: 'error' },
+      });
+      return;
+    }
+    if (activeStep === 2 && !paymentMethod) {
+      dispatch({
+        type: SHOW_NOTIFICATION,
+        payload: { message: 'Please select a payment method', severity: 'error' },
+      });
+      return;
+    }
+    setActiveStep((prev) => prev + 1);
+  };
 
+  const handleBack = () => {
+    setActiveStep((prev) => prev - 1);
+  };
+
+  const handlePlaceOrder = async () => {
+    setLoading(true);
+    setError(null);
+    const cartItemsArray = cart.cartItems.map((item) => ({
+      menuItemId: item.menuItemDto.id,
+      quantity: item.quantity,
+    }));
+
+    const data = {
+      paymentMethod,
+      addressId: selectedAddress.id,
+      orderItems: cartItemsArray,
+      restaurantId: cart.cartItems[0]?.restaurantId,
+    };
+
+    console.log('Order data', data);
+                     
+    try {
+      const orderResponse = await dispatch(createOrder({ reqData: data, navigate }));
+      // await dispatch(clearCart());
+      console.log("Order response", orderResponse);
+      
+
+      // Prepare order details for OrderTrackingSection
+      const orderDetails = {
+        orderId: orderResponse?.data?.id || 'ORD' + Math.floor(Math.random() * 1000000),
+        cartItems: orderResponse?.data?.items|| [],
+        totalPrice: totalAmount,
+        selectedAddress : orderResponse.deliveryAddress,
+        restaurantName: cart.cartItems[0]?.restaurantName || 'Tasty Bites',
+        estimatedDeliveryTime: '30-40 mins',
+      };
+
+      // Redirect to OrderTrackingSection
+      navigate('/order-tracking', { state: { orderDetails } });
+
+      dispatch({
+        type: SHOW_NOTIFICATION,
+        payload: { message: 'Order placed successfully!', severity: 'success' },
+      });
+    } catch (err) {
+      console.error('Order confirmation error:', err.message);
+      setError('Failed to place order. Please try again.');
+      dispatch({
+        type: SHOW_NOTIFICATION,
+        payload: { message: 'Failed to place order. Please try again.', severity: 'error' },
+      });
+    } finally {
+      setLoading(false);
+    }
+          // clearSession();
+
+  };
+
+  const handleCancel = () => {
+    setCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setCancelModalOpen(false);
+    dispatch({
+      type: SHOW_NOTIFICATION,
+      payload: { message: 'Order cancelled successfully.', severity: 'info' },
+    });
+    dispatch(clearCart());
+    clearSession();
+    navigate('/my-profile');
+  };
+
+  const handleCloseCancelModal = () => {
+    setCancelModalOpen(false);
+  };
+
+  const handlePaymentSuccess = (paymentIntent) => {
+    console.log('Payment successful:', paymentIntent);
+    setPaymentDetails({ paymentId: paymentIntent.id, status: 'succeeded' });
+  };
+
+  const totalBillAmount = (amount) => {
+    setTotalAmount(amount);
+  };
 
   return (
-    <>
-      <main className='lg:flex justify-between'>
-
-        <NotificationSnackbar/>
-
-        <section className='lg:w-[30%] space-y-6 lg:min-h-screen pt-10' >
-        {cart.cartItems && cart.cartItems.length > 0 ? (
-  cart.cartItems.map((item) => <CartItem key={item.id} item={item} />)
-) : (
-  <p>No items in the cart</p>
-)}
-
-        <Divider/>
-
-        <div className='billDetails px-5 text-sm'>
-
-          <p className='font-extralight py-5'>Bill Details</p>
-          <div className='space-y-3'>
-
-            <div className='flex justify-between text-gray-400'>
-              <p>Item Total</p>
-              <p>${cart.cart?.totalPrice }</p>
-            </div>
-
-            <div className='flex justify-between text-gray-400'>
-              <p>Delivery Fee</p>
-              <p>$20</p>
-            </div>
-
-            <div className='flex justify-between text-gray-400'>
-              <p>Platform Fee</p>
-              <p>$5</p>
-            </div>
-
-            <div className='flex justify-between text-gray-400'>
-              <p>GST and Restaurent Charges</p>
-              <p>$14</p>
-            </div>
-
-            <Divider/>
-            <div className='flex justify-between text-gray-400'>
-              <p>Total Pay</p>
-              <p>${(cart.cart?.totalPrice+20+5+14).toFixed(2)}</p>
-              {/* The toFixed() method allows you to specify the number of decimal places you'd like to keep. It will round the number accordingly and return a string. */}
-            </div>
-
-            <Grid item xs={12}>
-                    <Button fullWidth variant='contained' onClick={handlePlaceOrder} color='primary'>Place Order</Button>
-                  </Grid>
-
-
-          </div>
-
-        </div>
-
-        </section>
-
-        <Divider orientation='vertical' flexItem/>
-
-        <section className='flex lg:w-[70%] justify-center px-5 pb-10 lg:pb-0'>
-
-          <div>
-            <h1 className='font-semibold text-center text-2xl py-10'>Choose Delivery Address</h1>
-
-            <div className='flex justify-center flex-wrap gap-5'>
-              {address.addresses.map((item)=>
-                
-                <AddressCart key={item.id}  item={item} showButton={true} 
-                handleSelectAddress={handleSelectAddress}
-                isSelected={selectedAddress?.id === item.id} />
-              )}
-
-              <Card className='flex gap-5 w-64 p-5'>
-                      <AddLocationAltIcon/>
-                      <div className='space--y-3 text-gray-500'>
-                          <h1 className='font-semibold text-lg text-white'>Add New Address</h1> 
-                      
-                              <Button variant='outlined' fullWidth onClick={handleOpenAddressModel}>Add</Button>
-                      
-                      </div>
-
-                  </Card>
-            
-            </div>
-          </div>
-          
-        </section>
-      </main>
-
-
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-{/* 
-npm i Formik
-npm i yup
-install those in the system */}
-
-            <Formik initialValues={initialValues} 
-            // validationSchema={validationSchema} 
-            onSubmit={handleSubmit}>
-
-              <Form>
-              <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Field 
-                    as={TextField} 
-                    name=
-                    "streetAddress"
-                    label="Street Address"
-                    fullWidth
-                    variant="outlined"
-                    // error={!ErrorMessage("streetAddress")}
-                    // helperText={
-                    //   <ErrorMessage>
-                    //   {(msg)=> <span className='text-red-600'>{msg}</span>}
-                    //   </ErrorMessage>
-                    // } 
-                    >
-                    </Field>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Field 
-                    as={TextField} 
-                    name="state"
-                    label="State"
-                    fullWidth
-                    variant="outlined"
-                    // error={!ErrorMessage("streetAddress")}
-                    // helperText={
-                    //   <ErrorMessage>
-                    //   {(msg)=> <span className='text-red-600'>{msg}</span>}
-                    //   </ErrorMessage>
-                    // } 
-                    >                      
-                    </Field>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Field 
-                    as={TextField} 
-                    name="city"
-                    label="City"
-                    fullWidth
-                    variant="outlined"
-                    // error={!ErrorMessage("streetAddress")}
-                    // helperText={
-                    //   <ErrorMessage>
-                    //   {(msg)=> <span className='text-red-600'>{msg}</span>}
-                    //   </ErrorMessage>
-                    // } 
-                    >
-                    </Field>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Field 
-                    as={TextField} 
-                    name="zipcode"
-                    label="Zipcode"
-                    fullWidth
-                    variant="outlined"
-                    // error={!ErrorMessage("streetAddress")}
-                    // helperText={
-                    //   <ErrorMessage>
-                    //   {(msg)=> <span className='text-red-600'>{msg}</span>}
-                    //   </ErrorMessage>
-                    // } 
-                    >
-                    </Field>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Field 
-                    as={TextField} 
-                    name="landmark"
-                    label="Landmark"
-                    fullWidth
-                    variant="outlined"
-                    // error={!ErrorMessage("streetAddress")}
-                    // helperText={
-                    //   <ErrorMessage>
-                    //   {(msg)=> <span className='text-red-600'>{msg}</span>}
-                    //   </ErrorMessage>
-                    // } 
-                    >
-                    </Field>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Button fullWidth variant='contained' type='submit' color='primary'>Deliver Here</Button>
-                  </Grid>
-
-                </Grid>
-
-              </Form>
-
-            </Formik>
-
+    <Fade in={true} timeout={600}>
+      <Box
+        sx={{
+          bgcolor: '#000000',
+          background: 'linear-gradient(180deg, #1f2937 0%, #000000 100%)',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          py: { xs: 2, sm: 4 },
+          px: { xs: 2, sm: 3 },
+          maxWidth: '600px',
+          mx: 'auto',
+        }}
+      >
+        <NotificationSnackbar />
+        <Box sx={{ width: '100%', mb: 3 }}>
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel
+                  sx={{
+                    '& .MuiStepLabel-label': {
+                      color: '#9ca3af',
+                      fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                      fontWeight: activeStep >= steps.indexOf(label) ? 'bold' : 'normal',
+                    },
+                    '& .MuiStepIcon-root': { color: '#f97316', fontSize: '1.5rem' },
+                    '& .MuiStepIcon-text': { fill: '#ffffff' },
+                  }}
+                >
+                  {label}
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
+        <Box sx={{ width: '100%', flex: 1 }}>
+          {activeStep === 0 && (
+            <CartItemsSection
+              cartItems={cart.cartItems}
+              totalPrice={cart.cart?.totalPrice || 0}
+              handleTotalAmount={totalBillAmount}
+            />
+          )}
+          {activeStep === 1 && (
+            <AddressSelectionSection
+              addresses={address.addresses}
+              selectedAddress={selectedAddress}
+              onSelectAddress={handleSelectAddress}
+              onAddAddress={handleOpenAddressModal}
+            />
+          )}
+          {activeStep === 2 && (
+            <Elements stripe={stripePromise}>
+              <PaymentSelectionSection
+                onSelectPayment={handleSelectPayment}
+                onPaymentSuccess={handlePaymentSuccess}
+                cartItems={cart?.cartItems}
+                totalPay={totalAmount || 0}
+              />
+            </Elements>
+          )}
+          {activeStep === 3 && (
+            <OrderConfirmationSection
+              cartItems={cart.cartItems}
+              totalPrice={totalAmount || 0}
+              selectedAddress={selectedAddress}
+              paymentMethod={paymentMethod}
+              paymentDetails={paymentDetails}
+              onConfirmOrder={handlePlaceOrder}
+            />
+          )}
+        </Box>
+        {/* Hide buttons when activeStep is 3 */}
+        {activeStep < 3 && (
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              mt: 2,
+              position: { xs: 'sticky', lg: 'static' },
+              bottom: 0,
+              bgcolor: 'rgba(0, 0, 0, 0.8)',
+              py: 2,
+              px: 2,
+              zIndex: 2,
+            }}
+          >
+            <Button
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              sx={{
+                color: '#f97316',
+                textTransform: 'none',
+                fontSize: { xs: '0.9rem', sm: '1rem' },
+              }}
+            >
+              Back
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              sx={{
+                bgcolor: '#f97316',
+                color: '#ffffff',
+                borderRadius: '12px',
+                textTransform: 'none',
+                py: 1.5,
+                px: 3,
+                boxShadow: '0 4px 12px rgba(249, 115, 22, 0.5)',
+                '&:hover': {
+                  bgcolor: '#ea580c',
+                  boxShadow: '0 6px 16px rgba(234, 88, 12, 0.7)',
+                },
+                fontSize: { xs: '0.9rem', sm: '1rem' },
+              }}
+            >
+              Continue
+            </Button>
           </Box>
+        )}
+        <AddressFormModal open={open} onClose={handleClose} onSubmit={handleSubmit} />
+        <Modal
+          open={cancelModalOpen}
+          onClose={handleCloseCancelModal}
+          closeAfterTransition
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Fade in={cancelModalOpen} timeout={600}>
+            <Box
+              sx={{
+                width: { xs: '90%', sm: 360 },
+                bgcolor: 'rgba(31, 41, 55, 0.9)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid #d4a017',
+                borderRadius: '12px',
+                boxShadow: '0 6px 20px rgba(0, 0, 0, 0.5)',
+                p: 3,
+                outline: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  color: '#ffffff',
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  fontSize: { xs: '1rem', sm: '1.125rem' },
+                }}
+              >
+                Cancel Order
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#9ca3af',
+                  textAlign: 'center',
+                  fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                }}
+              >
+                Are you sure you want to cancel your order?
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 2 }}>
+                <Button
+                  variant="contained"
+                  onClick={handleConfirmCancel}
+                  sx={{
+                    bgcolor: '#f97316',
+                    color: '#ffffff',
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    py: 1,
+                    fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                    '&:hover': { bgcolor: '#ea580c' },
+                  }}
+                >
+                  Yes
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={handleCloseCancelModal}
+                  sx={{
+                    borderColor: '#f97316',
+                    color: '#f97316',
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    py: 1,
+                    fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                    '&:hover': { borderColor: '#ea580c', bgcolor: 'rgba(249, 115, 22, 0.1)' },
+                  }}
+                >
+                  No
+                </Button>
+              </Box>
+            </Box>
+          </Fade>
         </Modal>
-    </>
-  )
-}
+      </Box>
+    </Fade>
+  );
+};
 
-export default Cart
+export default Cart;

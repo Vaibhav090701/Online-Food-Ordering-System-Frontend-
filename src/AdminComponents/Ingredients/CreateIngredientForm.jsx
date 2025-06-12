@@ -34,15 +34,13 @@ const CreateIngredientForm = ({ onIngredientCreated, onClose }) => {
   const { restaurent } = useSelector((store) => store);
   const dispatch = useDispatch();
   const restaurentId = restaurent.userRestaurent.id;
-  const jwt = localStorage.getItem('jwt');
-  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      const data = {
+      const reqData = {
         name: values.name,
         quantityInStock: parseFloat(values.quantityInStock),
         unit: values.unit,
@@ -51,13 +49,12 @@ const CreateIngredientForm = ({ onIngredientCreated, onClose }) => {
       };
       setIsSubmitting(true);
       try {
-        const response = await dispatch(createIngredient({ reqData: data, jwt }));
-        if (response?.id) {
-          onIngredientCreated(response.id);
+        const {data} = await dispatch(createIngredient(reqData));
+        if (data?.data?.id) {
+          onIngredientCreated(data?.data?.id);
           formik.resetForm();
         }
       } catch (err) {
-        setError('Failed to create ingredient. Please try again.');
       } finally {
         setIsSubmitting(false);
       }
@@ -170,13 +167,7 @@ const CreateIngredientForm = ({ onIngredientCreated, onClose }) => {
               }}
             />
           </Grid>
-          {error && (
-            <Grid item xs={12}>
-              <Alert severity="error" sx={{ bgcolor: '#7c2d12', color: '#fdba74' }}>
-                {error}
-              </Alert>
-            </Grid>
-          )}
+         
         </Grid>
 
         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

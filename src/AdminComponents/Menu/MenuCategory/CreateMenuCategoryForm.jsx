@@ -34,9 +34,10 @@ const CreateMenuCategoryForm = () => {
         categoryName:values.name,
         categoryDescription:values.description,
         categoryImages:values.images,
+        globalCategory: false
       } 
 
-      dispatch(createMenuCategory({jwt, reqData:data}));
+      dispatch(createMenuCategory({reqData:data})); 
 
       console.log("Form data", data);
       

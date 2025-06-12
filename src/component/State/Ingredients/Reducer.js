@@ -1,4 +1,4 @@
-import { CREATE_INGREDIENT_CATEGORY_REQUEST, CREATE_INGREDIENT_CATEGORY_SUCCESS, CREATE_INGREDIENT_REQUEST, CREATE_INGREDIENT_SUCCESS, GET_ALL_PRE_DEFINE_INGREDIENT_FAILURE, GET_ALL_PRE_DEFINE_INGREDIENT_REQUEST, GET_ALL_PRE_DEFINE_INGREDIENT_SUCCESS, GET_INGREDIENTS, GET_INGREDIENT_CATEGORY_REQUEST, GET_INGREDIENT_CATEGORY_SUCCESS, UPDATE_INGREDIENT_REQUEST, UPDATE_INGREDIENT_SUCCESS, UPDATE_STOCK } from "./ActionTypes";
+import { CREATE_INGREDIENT_REQUEST, CREATE_INGREDIENT_SUCCESS, GET_ALL_PRE_DEFINE_INGREDIENT_FAILURE, GET_ALL_PRE_DEFINE_INGREDIENT_REQUEST, GET_ALL_PRE_DEFINE_INGREDIENT_SUCCESS,  GET_INGREDIENTS_FAILURE, GET_INGREDIENTS_REQUEST, GET_INGREDIENTS_SUCCESS, UPDATE_INGREDIENT_REQUEST, UPDATE_INGREDIENT_SUCCESS, UPDATE_STOCK } from "./ActionTypes";
 
 const initialState={
     ingredients:[],
@@ -13,8 +13,7 @@ export const ingredientsReducer=(state=initialState,action)=>{
 
     switch (action.type) {
         case CREATE_INGREDIENT_REQUEST:
-        case CREATE_INGREDIENT_CATEGORY_REQUEST:
-        case GET_INGREDIENT_CATEGORY_REQUEST:
+        case GET_INGREDIENTS_REQUEST:
         case UPDATE_INGREDIENT_REQUEST:
         case GET_ALL_PRE_DEFINE_INGREDIENT_REQUEST:
         return{
@@ -30,23 +29,11 @@ export const ingredientsReducer=(state=initialState,action)=>{
                 ingredients:action.payload
             };
         
-        case GET_INGREDIENTS:
+        case GET_INGREDIENTS_SUCCESS:
             return{
                 ...state,
                 isLoading:false,
                 ingredients:action.payload
-            };
-        case GET_INGREDIENT_CATEGORY_SUCCESS:
-            return{
-                ...state,
-                isLoading:false,
-                category:action.payload
-            };
-        case CREATE_INGREDIENT_CATEGORY_SUCCESS:
-            return{
-                ...state,
-                isLoading:false,
-                category:[...state.category, action.payload],
             };
         case CREATE_INGREDIENT_SUCCESS:
             return{
@@ -72,6 +59,7 @@ export const ingredientsReducer=(state=initialState,action)=>{
             };
 
         case GET_ALL_PRE_DEFINE_INGREDIENT_FAILURE:
+        case GET_INGREDIENTS_FAILURE:
             return{
                 ...state, isLoading:false, error:action.payload
             };
